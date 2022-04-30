@@ -89,7 +89,7 @@ public static class GameSeralizer
     {
         if (data.Length != 6) throw new IncorrectMessageFormatException();
         int index = BitConverter.ToInt32(data, 0);
-        type = BitConverter.ToUInt16(data, 8);
+        type = BitConverter.ToUInt16(data, 4);
         return index;
 
     }

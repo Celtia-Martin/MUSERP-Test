@@ -61,7 +61,7 @@ public class GameClient : MonoBehaviour
         this.serverIP = IP;
         this.serverReliablePort = serverReliablePort;
         //MUSERP
-        HostOptions options = new HostOptions(1, timeOut, 0, 1, 0, 0, 1, 200, 100, null);
+        HostOptions options = new HostOptions(1, timeOut, 1000, 1, 0, 0, 1, 200, 100, null);
 
         ConnectionInfo serverInfo = new ConnectionInfo(IP, serverReliablePort, 0, -1);
         clientProtocol = new MuseRPClient(serverInfo, options, timeOutConnection, connectionTries);
