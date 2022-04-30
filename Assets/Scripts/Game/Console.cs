@@ -1,0 +1,41 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class Console : MonoBehaviour
+{
+    //Singleton
+    public static Console instance;
+
+    //State
+    private string log;
+
+    //References
+    [SerializeField]
+    private Text uiLog;
+
+    #region Unity Events
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+    }
+    #endregion
+    #region Methods
+    public void WriteLine(string line)
+    {
+        log += "\n" + line;
+        uiLog.text = log;
+    }
+    #endregion
+
+
+}
