@@ -26,9 +26,9 @@ public class MuseRPClient : IClientProtocol
         customHandler.AddHandler(type, handler);
     }
 
-    public void AddHandler(ushort type, Action handler)
+    public void AddHandler(ushort type, Action<byte[]> handler)
     {
-        customHandler.AddHandler(type, (s, m) => handler.Invoke());
+        customHandler.AddHandler(type, (m,s) => handler.Invoke(m.getData()));
     }
 
     public void AddOnConnectionFailedHandler(OnConnectionFailure onConnectionFailure)

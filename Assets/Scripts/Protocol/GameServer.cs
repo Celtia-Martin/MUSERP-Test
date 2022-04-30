@@ -61,10 +61,6 @@ public class GameServer : MonoBehaviour
         jobs = new Queue<Action>();
 
     }
-    //void Start()
-    //{
-       
-    //}
     private void Update()
     {
         if (jobs.Count > 0)
@@ -85,10 +81,6 @@ public class GameServer : MonoBehaviour
     {
         jobs.Enqueue(() => OnPositionChangeJob(message, source));
     }
- 
- 
-
-
     private void OnShotReceived(MessageObject message, Connection source)
     {
         jobs.Enqueue(() => ShotReceivedJob(message, source));
@@ -106,7 +98,6 @@ public class GameServer : MonoBehaviour
         characters.Add(myPlayer);
         serverProtocol.AddHandler(5, OnPositionReceive);
         serverProtocol.AddHandler(7, OnShotReceived);
-        
 
     }
     private void OnApplicationQuit()

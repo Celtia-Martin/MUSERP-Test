@@ -13,7 +13,7 @@ public interface IClientProtocol
     public void SendToServer(ushort type, byte[] message, bool reliable = true);
 
     public void AddHandler(ushort type, MessageDelegate handler);
-    public void AddHandler(ushort type, Action handler);
+    public void AddHandler(ushort type, Action<byte[]> handler);
     public void RemoveHandler(ushort type);
 
     public void AddOnDisconnectedHandler(OnServerDisconneced onDisconnected);

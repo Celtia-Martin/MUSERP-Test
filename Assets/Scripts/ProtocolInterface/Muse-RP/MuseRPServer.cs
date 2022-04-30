@@ -92,9 +92,9 @@ public class MuseRPServer : IServerProtocol
         customHandler.AddHandler(type, handler);
     }
 
-    public void AddHandler(ushort type, System.Action handler)
+    public void AddHandler(ushort type, System.Action<byte[]> handler)
     {
-        customHandler.AddHandler(type, (s, m) => handler.Invoke());
+        customHandler.AddHandler(type, (m,s) => handler.Invoke(m.getData()));
     }
     #endregion 
 }

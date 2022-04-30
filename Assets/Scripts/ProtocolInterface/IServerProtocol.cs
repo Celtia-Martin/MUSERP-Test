@@ -18,7 +18,7 @@ public interface IServerProtocol
     public void SendEndToAll();
 
     public void AddHandler(ushort type, MessageDelegate handler);
-    public void AddHandler(ushort type, Action handler);
+    public void AddHandler(ushort type, Action<byte[]> handler);
     public void RemoveHandler(ushort type);
 
     
