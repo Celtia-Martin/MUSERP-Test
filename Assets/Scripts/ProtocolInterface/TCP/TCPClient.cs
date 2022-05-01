@@ -30,7 +30,13 @@ public class TCPClient : IClientProtocol
     }
     public void AddHandler(ushort type, MessageDelegate handler)
     {
-        throw new NotImplementedException();
+        handlerDictionary.Add(type, (b) =>
+        {
+            byte[] data = new byte[b.Length - 2];
+            Array.Copy(b, 2, data, 0, b.Length - 2);
+            ushort type = BitConverter.ToUInt16(b, 0);
+            handler?.Invoke(new MessageObject(type, 0, 0, false, false, false, false, data), null);
+        });
     }
 
     public void AddHandler(ushort type, Action<byte[]> handler)
@@ -77,8 +83,12 @@ public class TCPClient : IClientProtocol
     public void SendToServer(ushort type, byte[] message, bool reliable = true)
     {
         List<byte> bytesToSend = new List<byte>();
+      
         bytesToSend.AddRange(BitConverter.GetBytes(type));
-        bytesToSend.AddRange(message);
+        if (message != null)
+        {
+            bytesToSend.AddRange(message);
+        }
         tcpClient.Send(bytesToSend.ToArray());
     }
 
@@ -90,9 +100,11 @@ public class TCPClient : IClientProtocol
             onConnected?.Invoke();
             listenerThread = new Thread(() => ListeningThread());
             listenerThread.Start();
+            SendToServer(0, null, true);
         }
         catch (Exception e)
         {
+            Debug.LogError("Excepcion conectando: " + e.Message);
             onConnectionFailure?.Invoke();
         }
 
@@ -108,13 +120,18 @@ public class TCPClient : IClientProtocol
     private void ListeningThread()
     {
         byte[] buffer = new byte[2000];
+        int size;
+        EndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
         while (IsConnected())
         {
-            tcpClient.Receive(buffer);
-            ushort type = BitConverter.ToUInt16(buffer, 0);
-            if(handlerDictionary.TryGetValue(type,out Action < byte[]> value))
+            size = tcpClient.ReceiveFrom(buffer, ref endPoint);
+            if (endPoint.Equals(serverEndPoint))
             {
-                value?.Invoke(buffer);
+                ushort type = BitConverter.ToUInt16(buffer, 0);
+                if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
+                {
+                    value?.Invoke(buffer);
+                }
             }
         }
         onDisconnected?.Invoke();
