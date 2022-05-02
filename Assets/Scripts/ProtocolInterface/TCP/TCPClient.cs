@@ -62,7 +62,7 @@ public class TCPClient : IClientProtocol
     public void OnStart(OnConnectedDelegate onConnected)
     {
         this.onConnected += onConnected;
-
+        TryConnect();
     }
 
     public void RemoveHandler(ushort type)

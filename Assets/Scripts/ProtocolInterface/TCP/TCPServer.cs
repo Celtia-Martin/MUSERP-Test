@@ -87,8 +87,13 @@ public class TCPServer : IServerProtocol
         if (message != null)
         {
             bytesToSend.AddRange(message);
+            tcpServer.SendTo(bytesToSend.ToArray(), conn.endPoint);
         }
-        tcpServer.SendTo(bytesToSend.ToArray(), conn.endPoint);
+        else
+        {
+            tcpServer.SendTo(null, conn.endPoint);
+        }
+     
     }
 
     public void SendToAll(ushort type, byte[] message, bool reliable = true)
