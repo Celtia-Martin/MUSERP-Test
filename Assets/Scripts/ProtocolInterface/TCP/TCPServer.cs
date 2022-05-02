@@ -3,6 +3,7 @@ using Muse_RP.Message;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -141,7 +142,7 @@ public class TCPServer : IServerProtocol
                 {
                     if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
                     {
-                        value?.Invoke(buffer);
+                        value?.Invoke(buffer.Take(0).ToArray());
                     }
                 }
             }
