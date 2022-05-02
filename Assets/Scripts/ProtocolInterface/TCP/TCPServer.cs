@@ -23,7 +23,7 @@ public class TCPServer : IServerProtocol
     private int maxConnections;
     public TCPServer(int port,int maxConnections)// o puerto aleatorio como en MUSE-RP https://stackoverflow.com/questions/36526332/simple-socket-server-in-unity
     {
-        tcpServer = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        tcpServer = new Socket(AddressFamily.InterNetwork, SocketType.Seqpacket, ProtocolType.Tcp);
         IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, port);
         tcpServer.Bind(localEndPoint);
         handlerDictionary = new Dictionary<ushort, Action<byte[]>>();
@@ -91,7 +91,6 @@ public class TCPServer : IServerProtocol
         }
         if(clients.TryGetValue(conn.port+conn.IP,out Socket handler))
         {
-
             handler.Send(bytesToSend.ToArray());
         }
 

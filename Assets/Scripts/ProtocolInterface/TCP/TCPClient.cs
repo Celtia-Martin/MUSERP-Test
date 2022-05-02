@@ -22,7 +22,7 @@ public class TCPClient : IClientProtocol
 
     public TCPClient(int port,EndPoint serverEndPoint)// o puerto aleatorio como en MUSE-RP
     {
-        tcpClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        tcpClient = new Socket(AddressFamily.InterNetwork, SocketType.Seqpacket, ProtocolType.Tcp);
         IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, port);
         tcpClient.Bind(localEndPoint);
         handlerDictionary = new Dictionary<ushort, Action<byte[]>>();
