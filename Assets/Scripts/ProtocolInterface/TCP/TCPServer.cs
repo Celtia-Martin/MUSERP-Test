@@ -85,8 +85,13 @@ public class TCPServer : IServerProtocol
         List<byte> bytesToSend = new List<byte>();
 
         bytesToSend.AddRange(BitConverter.GetBytes(type));
+        if (message != null)
+        {
+            bytesToSend.AddRange(message);
+        }
         if(clients.TryGetValue(conn.port+conn.IP,out Socket handler))
         {
+
             handler.Send(bytesToSend.ToArray());
         }
 
