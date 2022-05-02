@@ -100,7 +100,7 @@ public class TCPClient : IClientProtocol
             onConnected?.Invoke();
             listenerThread = new Thread(() => ListeningThread());
             listenerThread.Start();
-            SendToServer(0, null, true);
+ 
         }
         catch (Exception e)
         {

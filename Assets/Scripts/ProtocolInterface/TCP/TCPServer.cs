@@ -10,22 +10,25 @@ using UnityEngine;
 
 public class TCPServer : IServerProtocol
 {
-    private Dictionary<string, EndPoint> clients;
-    private Thread listenerThread;
+    private Dictionary<string, Socket> clients;
+    private Thread[] listenerThread;
+    private Thread openingConnectionThread;
     private Dictionary<ushort, Action<byte[]>> handlerDictionary;
     private OnServerDisconneced onDisconnected;
     private OnClientConnectedDelegate onConnected;
     private OnClientDisconnected disconnectedDelegate;
     private Socket tcpServer;
     private int clientID;
-    public TCPServer(int port)// o puerto aleatorio como en MUSE-RP
+    private int maxConnections;
+    public TCPServer(int port,int maxConnections)// o puerto aleatorio como en MUSE-RP https://stackoverflow.com/questions/36526332/simple-socket-server-in-unity
     {
         tcpServer = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, port);
         tcpServer.Bind(localEndPoint);
         handlerDictionary = new Dictionary<ushort, Action<byte[]>>();
-        clients = new Dictionary<string, EndPoint>();
-  
+        clients = new Dictionary<string, Socket>();
+        this.maxConnections = maxConnections;
+        listenerThread = new Thread[maxConnections];
     }
     public void AddHandler(ushort type, MessageDelegate handler)
     {
@@ -56,8 +59,9 @@ public class TCPServer : IServerProtocol
 
     public void OnStart()
     {
-        listenerThread = new Thread(() => ListeningThread());
-        listenerThread.Start();
+        openingConnectionThread = new Thread(() => OpenConnectionThread());
+        openingConnectionThread.Start();
+
     }
 
     public void RemoveHandler(ushort type)
@@ -96,9 +100,9 @@ public class TCPServer : IServerProtocol
         {
             bytesToSend.AddRange(message);
         }
-        foreach ( EndPoint endpoint in clients.Values)
+        foreach ( Socket socket in clients.Values)
         {
-            tcpServer.SendTo(bytesToSend.ToArray(), endpoint);
+            socket.Send(bytesToSend.ToArray());
         }
     }
     private bool IsConnected()
@@ -109,16 +113,17 @@ public class TCPServer : IServerProtocol
         }
         catch (SocketException) { return false; }
     }
-    private void ListeningThread()
+    private void ListeningThread(Socket socket)
     {
-        byte[] buffer = new byte[2000];
+        byte[] buffer = new byte[1024];
         int size;
         EndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
         while (IsConnected())
         {
             try
             {
-                size = tcpServer.ReceiveFrom(buffer, ref endPoint);
+                //size = tcpServer.ReceiveFrom(buffer, ref endPoint);
+                socket.Receive(buffer);
                 IPEndPoint ipEndPoint = endPoint as IPEndPoint;
                 ushort type = BitConverter.ToUInt16(buffer, 0);
                 if (clients.ContainsKey(ipEndPoint.Port + ipEndPoint.Address.ToString()))
@@ -128,28 +133,49 @@ public class TCPServer : IServerProtocol
                         value?.Invoke(buffer);
                     }
                 }
-                else if (type == 0)
-                {
-                    ClientConnected(ipEndPoint);
-                }
             }
            catch(Exception e)
             {
-                Console.instance.WriteLine("Error in server: " + e.Message);
+                Debug.LogError("Error in server: " + e.Message);
+                //socket.Close();
             }
         }
         onDisconnected?.Invoke();
     }
-    private void ClientConnected(IPEndPoint clientEndPoint)
+    private void OpenConnectionThread()
+    {
+        byte[] buffer = new byte[1024];
+        int size;
+        tcpServer.Listen(maxConnections);
+        while (IsConnected())
+        {
+            try
+            {
+                var handler = tcpServer.Accept();
+                ClientConnected(handler);
+            }
+            catch(Exception e)
+            {
+                Debug.LogError("Error in server: " + e.Message);
+                onDisconnected?.Invoke();
+            }
+        }
+    }
+    private void ClientConnected(Socket clientSocket)
     {
         try
         {
-            clients.Add(clientEndPoint.Port + clientEndPoint.Address.ToString(), clientEndPoint);
-        }catch(Exception e)
+            IPEndPoint endpoint = clientSocket.RemoteEndPoint as IPEndPoint;
+            clients.Add(endpoint.Port + endpoint.Address.ToString(), clientSocket);
+            listenerThread[clientID]= new Thread(() => ListeningThread(clientSocket));
+            listenerThread[clientID].Start();
+            clientID++;
+            onConnected?.Invoke(new ConnectionInfo(endpoint.Address.ToString(), endpoint.Port, 0, clientID));
+        }
+        catch(Exception e)
         {
             return;
         }
-        clientID++;
-        onConnected?.Invoke(new ConnectionInfo(clientEndPoint.Address.ToString(), clientEndPoint.Port,0,clientID));
+      
     }
 }
