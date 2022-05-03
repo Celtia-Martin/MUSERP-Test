@@ -142,11 +142,11 @@ public class TCPServer : IServerProtocol
             try
             {
                 //size = tcpServer.ReceiveFrom(buffer, ref endPoint);
-                socket.Receive(buffer);
+                size= socket.Receive(buffer);
                
                 if (clients.ContainsKey((socket.RemoteEndPoint as IPEndPoint).Port + (socket.RemoteEndPoint as IPEndPoint).Address.ToString()))
                 {
-                    string stream = System.Text.Encoding.ASCII.GetString(buffer);
+                    string stream = System.Text.Encoding.ASCII.GetString(buffer.Take(size).ToArray());
                     string[] messages = stream.Split('!');
                     foreach (string message in messages)
                     {

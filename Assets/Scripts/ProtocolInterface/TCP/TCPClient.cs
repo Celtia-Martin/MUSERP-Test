@@ -131,7 +131,7 @@ public class TCPClient : IClientProtocol
         while (IsConnected())
         {
             int size = tcpClient.Receive(buffer);
-            string stream = System.Text.Encoding.ASCII.GetString(buffer);
+            string stream = System.Text.Encoding.ASCII.GetString(buffer.Take(size).ToArray());
             string[] messages = stream.Split('!');
             foreach (string message in messages)
             {
