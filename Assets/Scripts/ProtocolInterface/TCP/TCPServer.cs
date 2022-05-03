@@ -150,11 +150,14 @@ public class TCPServer : IServerProtocol
                     string[] messages = stream.Split('!');
                     foreach (string message in messages)
                     {
-                        byte[] messageData = System.Text.Encoding.ASCII.GetBytes(message);
-                        ushort type = BitConverter.ToUInt16(messageData, 0);
-                        if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
+                        if (message.Length > 0)
                         {
-                            value?.Invoke(messageData);
+                            byte[] messageData = System.Text.Encoding.ASCII.GetBytes(message);
+                            ushort type = BitConverter.ToUInt16(messageData, 0);
+                            if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
+                            {
+                                value?.Invoke(messageData);
+                            }
                         }
                     }
                 }
