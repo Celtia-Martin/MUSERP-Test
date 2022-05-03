@@ -91,6 +91,7 @@ public class TCPClient : IClientProtocol
         {
             bytesToSend.AddRange(message);
         }
+        bytesToSend.AddRange(BitConverter.GetBytes('!'));
         tcpClient.Send(bytesToSend.ToArray());
     }
 
@@ -98,8 +99,11 @@ public class TCPClient : IClientProtocol
     {
         try
         {
+    
             tcpClient.Connect(serverEndPoint);
+
             onConnected?.Invoke();
+            //tcpClient.ReceiveTimeout = 1;
             listenerThread = new Thread(() => ListeningThread());
             listenerThread.Start();
  
@@ -127,10 +131,17 @@ public class TCPClient : IClientProtocol
         while (IsConnected())
         {
             int size = tcpClient.Receive(buffer);
-            ushort type = BitConverter.ToUInt16(buffer, 0);
-            if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
+            string stream = System.Text.Encoding.ASCII.GetString(buffer);
+            string[] messages = stream.Split('!');
+            foreach (string message in messages)
             {
-                value?.Invoke(buffer.Take(size).ToArray());
+                byte[] messageData = System.Text.Encoding.ASCII.GetBytes(message);
+                ushort type = BitConverter.ToUInt16(messageData, 0);
+                if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
+                {
+                    value?.Invoke(messageData);
+
+                }
             }
         }
         onDisconnected?.Invoke();

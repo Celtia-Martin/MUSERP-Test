@@ -92,10 +92,10 @@ public class TCPServer : IServerProtocol
         }
         if(clients.TryGetValue(conn.port+conn.IP,out Socket handler))
         {
+            bytesToSend.AddRange(BitConverter.GetBytes('!'));
             handler.Send(bytesToSend.ToArray());
+            Debug.Log(bytesToSend.Count + " " + handler.NoDelay);
         }
-
-
         //if (message != null)
         //{
         //    bytesToSend.AddRange(message);
@@ -117,9 +117,12 @@ public class TCPServer : IServerProtocol
         {
             bytesToSend.AddRange(message);
         }
+        bytesToSend.AddRange(BitConverter.GetBytes('!'));
         foreach ( Socket socket in clients.Values)
         {
+           
             socket.Send(bytesToSend.ToArray());
+           
         }
     }
     private bool IsConnected()
@@ -134,20 +137,25 @@ public class TCPServer : IServerProtocol
     {
         byte[] buffer = new byte[1024];
         int size;
-        EndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
         while (IsConnected())
         {
             try
             {
                 //size = tcpServer.ReceiveFrom(buffer, ref endPoint);
                 socket.Receive(buffer);
-                IPEndPoint ipEndPoint = endPoint as IPEndPoint;
-                ushort type = BitConverter.ToUInt16(buffer, 0);
-                if (clients.ContainsKey(ipEndPoint.Port + ipEndPoint.Address.ToString()))
+               
+                if (clients.ContainsKey((socket.RemoteEndPoint as IPEndPoint).Port + (socket.RemoteEndPoint as IPEndPoint).Address.ToString()))
                 {
-                    if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
+                    string stream = System.Text.Encoding.ASCII.GetString(buffer);
+                    string[] messages = stream.Split('!');
+                    foreach (string message in messages)
                     {
-                        value?.Invoke(buffer.Take(0).ToArray());
+                        byte[] messageData = System.Text.Encoding.ASCII.GetBytes(message);
+                        ushort type = BitConverter.ToUInt16(messageData, 0);
+                        if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
+                        {
+                            value?.Invoke(messageData);
+                        }
                     }
                 }
             }
@@ -169,7 +177,6 @@ public class TCPServer : IServerProtocol
             try
             {
                 var handler = tcpServer.Accept();
-                handler.NoDelay = true;
                 ClientConnected(handler);
             }
             catch(Exception e)
@@ -183,8 +190,10 @@ public class TCPServer : IServerProtocol
     {
         try
         {
+           
             IPEndPoint endpoint = clientSocket.RemoteEndPoint as IPEndPoint;
             clients.Add(endpoint.Port + endpoint.Address.ToString(), clientSocket);
+            clientSocket.NoDelay = true;
             listenerThread[clientID]= new Thread(() => ListeningThread(clientSocket));
             listenerThread[clientID].Start();
             clientID++;
