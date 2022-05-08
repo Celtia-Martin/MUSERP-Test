@@ -148,11 +148,11 @@ public class TCPServer : IServerProtocol
                 {
                     string stream = System.Text.Encoding.ASCII.GetString(buffer.Take(size).ToArray());
                     string[] messages = stream.Split('!');
-                    foreach (string message in messages)
+                    for (int i = 0; i < messages.Length - 1; i++)
                     {
-                        if (message.Length > 0)
+                        if (messages[0].Length > 0)
                         {
-                            byte[] messageData = System.Text.Encoding.ASCII.GetBytes(message);
+                            byte[] messageData = System.Text.Encoding.ASCII.GetBytes(messages[0]);
                             ushort type = BitConverter.ToUInt16(messageData, 0);
                             if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
                             {
