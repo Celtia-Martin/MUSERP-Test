@@ -133,11 +133,13 @@ public class TCPClient : IClientProtocol
             int size = tcpClient.Receive(buffer);
             string stream = System.Text.Encoding.ASCII.GetString(buffer.Take(size).ToArray());
             string[] messages = stream.Split('!');
+            int offset= 0;
             for(int i=0; i < messages.Length - 1; i++)
             {
-                if (messages[0].Length > 0)
+                if (messages[i].Length > 0)
                 {
-                    byte[] messageData = System.Text.Encoding.ASCII.GetBytes(messages[0]);
+                    byte[] messageData = buffer.Skip(offset).Take(messages[i].Length).ToArray();
+                    offset += messages[i].Length;
                     ushort type = BitConverter.ToUInt16(messageData, 0);
                     if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
                     {
