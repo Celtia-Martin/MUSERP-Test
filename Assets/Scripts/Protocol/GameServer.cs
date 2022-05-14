@@ -71,8 +71,8 @@ public class GameServer : MonoBehaviour
     #endregion
     public void StartServer()
     {
-        //serverProtocol = new MuseRPServer(reliablePort, noReliablePort, maxConnections, timeOut, timePing, reliablePercentage);
-        serverProtocol = new TCPServer(reliablePort,maxConnections);
+        serverProtocol = new MuseRPServer(reliablePort, noReliablePort, maxConnections, timeOut, timePing, reliablePercentage);
+        //serverProtocol = new TCPServer(reliablePort,maxConnections);
         serverProtocol.OnStart();
         ServerIniciado();
     }

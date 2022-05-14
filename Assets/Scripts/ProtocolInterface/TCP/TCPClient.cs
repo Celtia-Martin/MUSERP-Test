@@ -11,8 +11,8 @@ using UnityEngine;
 public class TCPClient : IClientProtocol
 {
 
-    private Socket tcpClient;
-    private Thread listenerThread;
+
+    private Telepathy.Client tcpClient;
     private Dictionary<ushort, Action<byte[]>> handlerDictionary;
     private bool connected;
     private OnConnectionFailure onConnectionFailure;
@@ -22,13 +22,22 @@ public class TCPClient : IClientProtocol
 
     public TCPClient(int port,EndPoint serverEndPoint)// o puerto aleatorio como en MUSE-RP
     {
-        tcpClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, port);
-        tcpClient.NoDelay = true;
-        tcpClient.Bind(localEndPoint);
-        handlerDictionary = new Dictionary<ushort, Action<byte[]>>();
-        connected = false;
+        tcpClient = new Telepathy.Client(2000);
         this.serverEndPoint = serverEndPoint;
+        tcpClient.OnConnected += ()=>onConnected?.Invoke();
+        tcpClient.OnDisconnected += () => onDisconnected?.Invoke();
+        tcpClient.OnData += OnData;
+        tcpClient.NoDelay = true;
+      
+
+
+        //tcpClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        //IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, port);
+        //tcpClient.NoDelay = true;
+        //tcpClient.Bind(localEndPoint);
+        handlerDictionary = new Dictionary<ushort, Action<byte[]>>();
+        //connected = false;
+        //this.serverEndPoint = serverEndPoint;
     }
     public void AddHandler(ushort type, MessageDelegate handler)
     {
@@ -58,7 +67,7 @@ public class TCPClient : IClientProtocol
 
     public void OnAppQuit()
     {
-        tcpClient.Close();
+        tcpClient.Disconnect();
     }
 
     public void OnStart(OnConnectedDelegate onConnected)
@@ -91,66 +100,25 @@ public class TCPClient : IClientProtocol
         {
             bytesToSend.AddRange(message);
         }
-        bytesToSend.AddRange(BitConverter.GetBytes('!'));
-        tcpClient.Send(bytesToSend.ToArray());
+        ArraySegment<byte> data = new ArraySegment<byte>(bytesToSend.ToArray());
+        tcpClient.Send(data);
+      
     }
 
     public void TryConnect()
     {
-        try
-        {
-    
-            tcpClient.Connect(serverEndPoint);
-
-            onConnected?.Invoke();
-            //tcpClient.ReceiveTimeout = 1;
-            listenerThread = new Thread(() => ListeningThread());
-            listenerThread.Start();
- 
-        }
-        catch (Exception e)
-        {
-            Debug.LogError("Excepcion conectando: " + e.Message);
-            onConnectionFailure?.Invoke();
-        }
+        IPEndPoint endpoint = serverEndPoint as IPEndPoint;
+        tcpClient.Connect(endpoint.Address.ToString(), endpoint.Port);
 
     }
-    private bool IsConnected()
+
+
+    private void OnData( ArraySegment<byte> data)
     {
-        try
+        ushort type = BitConverter.ToUInt16(data.Take(2).ToArray(), 0);
+        if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
         {
-            return !(tcpClient.Poll(1, SelectMode.SelectRead) && tcpClient.Available == 0);
+            value?.Invoke(data.ToArray());
         }
-        catch (SocketException) { return false; }
     }
-    private void ListeningThread()
-    {
-        byte[] buffer = new byte[2000];
-
-        EndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
-        while (IsConnected())
-        {
-            int size = tcpClient.Receive(buffer);
-            string stream = System.Text.Encoding.ASCII.GetString(buffer.Take(size).ToArray());
-            string[] messages = stream.Split('!');
-            int offset= 0;
-            for(int i=0; i < messages.Length - 1; i++)
-            {
-                if (messages[i].Length > 0)
-                {
-                    byte[] messageData = buffer.Skip(offset).Take(messages[i].Length).ToArray();
-                    offset += messages[i].Length;
-                    ushort type = BitConverter.ToUInt16(messageData, 0);
-                    if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
-                    {
-                        value?.Invoke(messageData);
-
-                    }
-                }
-            }
-        }
-        onDisconnected?.Invoke();
-    }
-    
- 
 }

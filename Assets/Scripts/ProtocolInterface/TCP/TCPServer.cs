@@ -11,26 +11,33 @@ using UnityEngine;
 
 public class TCPServer : IServerProtocol
 {
-    private Dictionary<string, Socket> clients;
-    private Thread[] listenerThread;
-    private Thread openingConnectionThread;
     private Dictionary<ushort, Action<byte[]>> handlerDictionary;
+    private List<int> clients;
     private OnServerDisconneced onDisconnected;
     private OnClientConnectedDelegate onConnected;
     private OnClientDisconnected disconnectedDelegate;
-    private Socket tcpServer;
-    private int clientID;
+    private Telepathy.Server tcpServer;
+    private int port;
     private int maxConnections;
+    private int clientID;
     public TCPServer(int port,int maxConnections)// o puerto aleatorio como en MUSE-RP https://stackoverflow.com/questions/36526332/simple-socket-server-in-unity
     {
-        tcpServer = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, port);
-        tcpServer.Bind(localEndPoint);
-        tcpServer.NoDelay = true;
-        handlerDictionary = new Dictionary<ushort, Action<byte[]>>();
-        clients = new Dictionary<string, Socket>();
+        tcpServer = new Telepathy.Server(2000);
+        this.port = port;
         this.maxConnections = maxConnections;
-        listenerThread = new Thread[maxConnections];
+        tcpServer.NoDelay = true;
+        tcpServer.OnConnected += ClientConnected;
+        tcpServer.OnDisconnected += ClientDisConnected;
+        tcpServer.OnData += OnData;
+        //tcpServer = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        //IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, port);
+        //tcpServer.Bind(localEndPoint);
+        //tcpServer.NoDelay = true;
+        handlerDictionary = new Dictionary<ushort, Action<byte[]>>();
+        clients = new List<int>();
+        //clients = new Dictionary<string, Socket>();
+        //this.maxConnections = maxConnections;
+        //listenerThread = new Thread[maxConnections];
     }
     public void AddHandler(ushort type, MessageDelegate handler)
     {
@@ -56,14 +63,12 @@ public class TCPServer : IServerProtocol
 
     public void OnAppQuit()
     {
-        tcpServer.Close();
+        tcpServer.Stop();
     }
 
     public void OnStart()
     {
-        openingConnectionThread = new Thread(() => OpenConnectionThread());
-        openingConnectionThread.Start();
-
+        tcpServer.Start(port);
     }
 
     public void RemoveHandler(ushort type)
@@ -90,21 +95,9 @@ public class TCPServer : IServerProtocol
         {
             bytesToSend.AddRange(message);
         }
-        if(clients.TryGetValue(conn.port+conn.IP,out Socket handler))
-        {
-            bytesToSend.AddRange(BitConverter.GetBytes('!'));
-            handler.Send(bytesToSend.ToArray());
-            Debug.Log(bytesToSend.Count + " " + handler.NoDelay);
-        }
-        //if (message != null)
-        //{
-        //    bytesToSend.AddRange(message);
-        //    tcpServer.SendTo(bytesToSend.ToArray(), conn.endPoint);
-        //}
-        //else
-        //{
-        //    tcpServer.SendTo(null, conn.endPoint);
-        //}
+        ArraySegment<byte> data = new ArraySegment<byte>(bytesToSend.ToArray());
+
+        tcpServer.Send(conn.ID, data);
      
     }
 
@@ -117,98 +110,34 @@ public class TCPServer : IServerProtocol
         {
             bytesToSend.AddRange(message);
         }
-        bytesToSend.AddRange(BitConverter.GetBytes('!'));
-        foreach ( Socket socket in clients.Values)
+        ArraySegment<byte> data = new ArraySegment<byte>(bytesToSend.ToArray());
+        for (int i =0; i<clients.Count; i++)
         {
-           
-            socket.Send(bytesToSend.ToArray());
-           
+            tcpServer.Send(clients[i], data);
         }
     }
-    private bool IsConnected()
-    {
-        try
-        {
-            return !(tcpServer.Poll(1, SelectMode.SelectRead) && tcpServer.Available == 0);
-        }
-        catch (SocketException) { return false; }
-    }
-    private void ListeningThread(Socket socket)
-    {
-        byte[] buffer = new byte[1024];
-        int size;
-        while (IsConnected())
-        {
-            try
-            {
-                //size = tcpServer.ReceiveFrom(buffer, ref endPoint);
-                size= socket.Receive(buffer);
-               
-                if (clients.ContainsKey((socket.RemoteEndPoint as IPEndPoint).Port + (socket.RemoteEndPoint as IPEndPoint).Address.ToString()))
-                {
-                    string stream = System.Text.Encoding.ASCII.GetString(buffer.Take(size).ToArray());
-                    string[] messages = stream.Split('!');
-                    int offset = 0;
-                    for (int i = 0; i < messages.Length - 1; i++)
-                    {
-                        if (messages[i].Length > 0)
-                        {
-                            byte[] messageData = buffer.Skip(offset).Take(messages[i].Length).ToArray();
-                            offset += messages[i].Length;
-                            ushort type = BitConverter.ToUInt16(messageData, 0);
-                            if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
-                            {
-                                value?.Invoke(messageData);
 
-                            }
-                        }
-                    }
-                }
-            }
-           catch(Exception e)
-            {
-                Debug.LogError("Error in server: " + e.Message);
-                //socket.Close();
-            }
-        }
-        onDisconnected?.Invoke();
-    }
-    private void OpenConnectionThread()
+   private void OnData(int connectionID, ArraySegment<byte> data)
     {
-        byte[] buffer = new byte[1024];
-        int size;
-        tcpServer.Listen(maxConnections);
-        while (IsConnected())
+        ushort type = BitConverter.ToUInt16( data.Take(2).ToArray(),0);
+        if(handlerDictionary.TryGetValue(type,out Action<byte[]> value))
         {
-            try
-            {
-                var handler = tcpServer.Accept();
-                ClientConnected(handler);
-            }
-            catch(Exception e)
-            {
-                Debug.LogError("Error in server: " + e.Message);
-                onDisconnected?.Invoke();
-            }
+            value?.Invoke(data.ToArray());
         }
     }
-    private void ClientConnected(Socket clientSocket)
+
+    private void ClientConnected(int connectionID)
     {
-        try
-        {
-           
-            IPEndPoint endpoint = clientSocket.RemoteEndPoint as IPEndPoint;
-            clients.Add(endpoint.Port + endpoint.Address.ToString(), clientSocket);
-            clientSocket.NoDelay = true;
-            listenerThread[clientID]= new Thread(() => ListeningThread(clientSocket));
-            listenerThread[clientID].Start();
-            clientID++;
-            onConnected?.Invoke(new ConnectionInfo(endpoint.Address.ToString(), endpoint.Port, 0, clientID));
-        }
-        catch(Exception e)
-        {
-            return;
-        }
-      
+        clients.Add(connectionID);
+        string address= tcpServer.GetClientAddress(connectionID);
+        ConnectionInfo clientInfo = new ConnectionInfo(address, connectionID, connectionID, connectionID);
+        onConnected?.Invoke(clientInfo);  
+    }   
+    private void ClientDisConnected(int connectionID)
+    {
+        clients.Remove(connectionID);
+        string address= tcpServer.GetClientAddress(connectionID);
+        ConnectionInfo clientInfo = new ConnectionInfo(address, connectionID, connectionID, connectionID);
+        disconnectedDelegate?.Invoke(clientInfo);  
     }
 }

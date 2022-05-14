@@ -86,6 +86,10 @@ public class EnemySpawner : MonoBehaviour
     }
     public void NewEnemyClient(int index,ushort type)
     {
+        if (type >= types.Count)
+        {
+            return;
+        }
         Enemy currentEnemy = PoolManager.singleton.getFromPool(types[type]).GetComponent<Enemy>();
         enemies.Add(currentEnemy);
         (Vector2 direction, Vector2 position)= SpawnerHelper.instance.GetInfoFromPoint(index);

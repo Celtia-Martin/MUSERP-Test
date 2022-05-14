@@ -51,7 +51,12 @@ public static class GameSeralizer
     #region Get Information From Bytes
     public static Color getCharacterFromBytes(byte[] data, out int ID)
     {
-        if (data.Length != 16) throw new IncorrectMessageFormatException();
+        if (data.Length != 16)
+        {
+            // throw new IncorrectMessageFormatException();
+            ID = -1;
+            return Color.white ;
+        }
         ID = BitConverter.ToInt32(data, 0);
         Color color = new Color();
         color.r = BitConverter.ToSingle(data, 4);
@@ -62,7 +67,13 @@ public static class GameSeralizer
     }
     public static Vector2 getPositionFromBytes(byte[] data, out int ID)
     {
-        if (data.Length != 12) throw new IncorrectMessageFormatException();
+        if (data.Length != 12)
+        {
+            ID = -1;
+            return Vector2.zero;
+          //  throw new IncorrectMessageFormatException();
+        }
+
         ID = BitConverter.ToInt32(data, 0);
         Vector2 position = new Vector2();
         position.x = BitConverter.ToSingle(data, 4);
@@ -73,7 +84,12 @@ public static class GameSeralizer
 
     public static int getPointsFromBytes(byte[] data, out int ID)
     {
-        if (data.Length != 8) throw new IncorrectMessageFormatException();
+        if (data.Length != 8)
+        {
+            ID = -1;
+            return -1;
+            //throw new IncorrectMessageFormatException();
+        }
         int points;
         ID = BitConverter.ToInt32(data, 0);
         points = BitConverter.ToInt32(data, 4);
@@ -82,12 +98,21 @@ public static class GameSeralizer
 
     public static int getDisappearEnemyFromBytes(byte[] data)
     {
-        if (data.Length != 4) throw new IncorrectMessageFormatException();
+        if (data.Length != 4)
+        {
+            return -1;
+            throw new IncorrectMessageFormatException();
+        }
         return  BitConverter.ToInt32(data, 0);
     }
     public static int getSpawnEnemyFromBytes(byte[] data, out ushort type)
     {
-        if (data.Length != 6) throw new IncorrectMessageFormatException();
+        if (data.Length != 6)
+        {
+            type= 52;
+            return -1;
+        }
+        //throw new IncorrectMessageFormatException();
         int index = BitConverter.ToInt32(data, 0);
         type = BitConverter.ToUInt16(data, 4);
         return index;
