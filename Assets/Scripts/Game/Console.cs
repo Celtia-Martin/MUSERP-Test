@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -32,8 +33,15 @@ public class Console : MonoBehaviour
     #region Methods
     public void WriteLine(string line)
     {
-        log += "\n" + line;
-        uiLog.text = log;
+        try
+        {
+            log += "\n" + line;
+            uiLog.text = log;
+
+        }catch (Exception e)
+        {
+            Debug.LogWarning("Message can't be write because: " + e.Message+". The message was: "+line);
+        }
     }
     #endregion
 
