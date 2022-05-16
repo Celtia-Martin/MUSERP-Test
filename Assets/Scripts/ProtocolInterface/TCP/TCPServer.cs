@@ -26,9 +26,7 @@ public class TCPServer : IServerProtocol
         this.port = port;
         this.maxConnections = maxConnections;
         tcpServer.NoDelay = true;
-        tcpServer.OnConnected += ClientConnected;
-        tcpServer.OnDisconnected += ClientDisConnected;
-        tcpServer.OnData += OnData;
+       
         //tcpServer = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         //IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, port);
         //tcpServer.Bind(localEndPoint);
@@ -69,6 +67,10 @@ public class TCPServer : IServerProtocol
     public void OnStart()
     {
         tcpServer.Start(port);
+        tcpServer.OnConnected += ClientConnected;
+        tcpServer.OnConnected += (i) => Debug.Log("Cliente " + i + " conectado");
+        tcpServer.OnDisconnected += ClientDisConnected;
+        tcpServer.OnData += OnData;
     }
 
     public void RemoveHandler(ushort type)

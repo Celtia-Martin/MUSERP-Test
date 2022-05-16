@@ -24,8 +24,7 @@ public class TCPClient : IClientProtocol
     {
         tcpClient = new Telepathy.Client(2000);
         this.serverEndPoint = serverEndPoint;
-        tcpClient.OnConnected += ()=>onConnected?.Invoke();
-        tcpClient.OnDisconnected += () => onDisconnected?.Invoke();
+      
         tcpClient.OnData += OnData;
         tcpClient.NoDelay = true;
       
@@ -74,6 +73,8 @@ public class TCPClient : IClientProtocol
     {
         this.onConnected += onConnected;
         TryConnect();
+        tcpClient.OnConnected += () => this.onConnected?.Invoke();
+        tcpClient.OnDisconnected += () => onDisconnected?.Invoke();
     }
 
     public void RemoveHandler(ushort type)

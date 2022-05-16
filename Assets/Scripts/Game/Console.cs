@@ -40,7 +40,7 @@ public class Console : MonoBehaviour
 
         }catch (Exception e)
         {
-            Debug.LogWarning("Message can't be write because: " + e.Message+". The message was: "+line);
+            Debug.LogWarning("Message can't be write because:  The message was: "+line);
         }
     }
     #endregion

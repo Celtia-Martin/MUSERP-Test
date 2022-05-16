@@ -66,7 +66,8 @@ public class GameClient : MonoBehaviour
 
         ConnectionInfo serverInfo = new ConnectionInfo(IP, serverReliablePort, 0, -1);
         //clientProtocol = new MuseRPClient(serverInfo, options, timeOutConnection, connectionTries);
-        clientProtocol = new TCPClient(UnityEngine.Random.Range(49152, 65535), new IPEndPoint(IPAddress.Parse(IP), serverReliablePort));
+        //clientProtocol = new TCPClient(UnityEngine.Random.Range(49152, 65535), new IPEndPoint(IPAddress.Parse(IP), serverReliablePort));
+        clientProtocol = new UDPClient(new IPEndPoint(IPAddress.Parse(IP), serverReliablePort), UnityEngine.Random.Range(49152, 65535));
         /////
         clientProtocol.OnStart(OnConnected);
 
@@ -112,7 +113,7 @@ public class GameClient : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        clientProtocol.OnAppQuit();
+        clientProtocol?.OnAppQuit();
     }
     private void OnPointsReceive(MessageObject message, Connection source)
     {

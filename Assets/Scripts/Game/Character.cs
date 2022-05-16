@@ -58,7 +58,7 @@ public class Character : MonoBehaviour
 
         this.isServer = isServer;
         this.ID = ID;
-        this.color = new Color(Random.RandomRange(0f, 1f), Random.RandomRange(0f, 1f), Random.RandomRange(0f, 1f), 1);
+        this.color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1);
         this.isMine = isMine;
         points = 0;
         cursor.color = color;
