@@ -58,6 +58,8 @@ public class GServerClient : IClientProtocol
     public void OnStart(OnConnectedDelegate onConnected)
     {
         clientHost.OnConnect += ()=>onConnected?.Invoke();
+        Timer timer = new Timer(o => clientHost.Tick());
+        timer.Change(10, 10);
         TryConnect();
         
     }

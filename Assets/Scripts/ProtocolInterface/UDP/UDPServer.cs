@@ -59,6 +59,7 @@ public class UDPServer : IServerProtocol
 
     public void OnStart()
     {
+        connected = true;
         listenerThread = new Thread(() => ListeningThread());
         listenerThread.Start();
     }

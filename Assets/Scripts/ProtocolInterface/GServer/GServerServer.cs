@@ -7,6 +7,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
+using System.Text;
+using System.Threading;
+using GServer;
 
 public class GServerServer : IServerProtocol
 {
@@ -18,7 +21,7 @@ public class GServerServer : IServerProtocol
     }
     public void OnStart()
     {
-        serverHost.StartListen();
+        //serverHost.StartListen();
     }
 
     public void OnAppQuit()
@@ -29,6 +32,8 @@ public class GServerServer : IServerProtocol
 
     public void InitServer(OnClientConnectedDelegate connectedDelegate, OnClientDisconnected disconnectedDelegate)
     {
+        Timer timer = new Timer(o => serverHost.Tick());
+        timer.Change(10, 10);
         serverHost.ConnectionCreated += (c) => connectedDelegate(new ConnectionInfo(c.EndPoint.Address.ToString(), c.EndPoint.Port, c.EndPoint.Port, 0));
         serverHost.StartListen();
     }
