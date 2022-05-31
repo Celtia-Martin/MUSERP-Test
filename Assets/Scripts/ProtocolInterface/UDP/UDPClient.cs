@@ -95,7 +95,7 @@ public class UDPClient : IClientProtocol
     public void TryConnect()
     {
         ushort type = 0;
-        clientSocket.Send(BitConverter.GetBytes(type));
+        clientSocket.SendTo(BitConverter.GetBytes(type),serverEndPoint);
 
     }
   
