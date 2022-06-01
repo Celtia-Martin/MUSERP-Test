@@ -106,6 +106,7 @@ public class RufflesClient : IClientProtocol
     public void SendToServer(ushort type, byte[] message, bool reliable = true)
     {
         List<byte> data = new List<byte>();
+        Debug.Log("Sending some with " + message.Length + " bytes");
         data.AddRange(BitConverter.GetBytes(type));
         data.AddRange(message);
         byte channel = reliable ? (byte)ChannelType.ReliableSequenced : (byte)ChannelType.UnreliableOrdered;
@@ -158,6 +159,7 @@ public class RufflesClient : IClientProtocol
                     break;
                 case NetworkEventType.Data:
                     ushort type = BitConverter.ToUInt16(clientEvent.Data.Array, 0);
+                    Debug.Log("Type of message " + type);
                     if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
                     {
                         value?.Invoke(clientEvent.Data.Array);
