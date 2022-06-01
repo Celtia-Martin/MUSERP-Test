@@ -64,12 +64,12 @@ public class GameClient : MonoBehaviour
         //MUSERP
         HostOptions options = new HostOptions(1, timeOut, 1000, 1, 59555, 59554, 1, 200, 100, null);
 
-        ConnectionInfo serverInfo = new ConnectionInfo(IP, serverReliablePort, 0, -1);
-        //clientProtocol = new MuseRPClient(serverInfo, options, timeOutConnection, connectionTries);
+        ConnectionInfo serverInfo = new ConnectionInfo(IP, serverReliablePort, 0);
+        clientProtocol = new MuseRPClient(serverInfo, options, timeOutConnection, connectionTries);
         //clientProtocol = new TCPClient(UnityEngine.Random.Range(49152, 65535), new IPEndPoint(IPAddress.Parse(IP), serverReliablePort));
         //clientProtocol = new RufflesClient(new IPEndPoint(IPAddress.Parse(IP), serverReliablePort));
         //clientProtocol = new GServerClient(serverReliablePort, IP);
-        clientProtocol = new UDPClient(new IPEndPoint(IPAddress.Parse(IP), serverReliablePort), UnityEngine.Random.Range(49152, 65535));
+       // clientProtocol = new UDPClient(new IPEndPoint(IPAddress.Parse(IP), serverReliablePort), UnityEngine.Random.Range(49152, 65535));
 
         clientProtocol.OnStart(OnConnected);
 

@@ -128,13 +128,13 @@ public class RufflesServer : IServerProtocol
                     break;
                 case NetworkEventType.Connect:
                     clients.Add(new Connection(serverEvent.EndPoint, true),serverEvent.Connection);
-                    onClientConnected?.Invoke(new ConnectionInfo(serverEvent.EndPoint.Address.ToString(), serverEvent.EndPoint.Port, serverEvent.EndPoint.Port, serverEvent.ChannelId));
+                    onClientConnected?.Invoke(new ConnectionInfo(serverEvent.EndPoint.Address.ToString(), serverEvent.EndPoint.Port, serverEvent.EndPoint.Port));
                     break;
                 case NetworkEventType.Disconnect:
                     clients.Remove(new Connection(serverEvent.EndPoint, true));
                     break;
                 case NetworkEventType.Timeout:
-                    onDisconnectedDelegate?.Invoke(new ConnectionInfo(serverEvent.EndPoint.Address.ToString(),serverEvent.EndPoint.Port,serverEvent.EndPoint.Port,serverEvent.ChannelId));
+                    onDisconnectedDelegate?.Invoke(new ConnectionInfo(serverEvent.EndPoint.Address.ToString(),serverEvent.EndPoint.Port,serverEvent.EndPoint.Port));
                     clients.Remove(new Connection(serverEvent.EndPoint, true));
                     break;
                 case NetworkEventType.Data:

@@ -69,7 +69,7 @@ public class MuseRPClient : IClientProtocol
         {
             return;
         }
-        if (client.isConnected())
+        if (client.IsConnected())
         {
             client.SendEnd();
             client.ReceiveEnd(null, null);

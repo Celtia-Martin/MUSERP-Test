@@ -34,7 +34,7 @@ public class GServerServer : IServerProtocol
     {
         Timer timer = new Timer(o => serverHost.Tick());
         timer.Change(10, 10);
-        serverHost.ConnectionCreated += (c) => connectedDelegate(new ConnectionInfo(c.EndPoint.Address.ToString(), c.EndPoint.Port, c.EndPoint.Port, 0));
+        serverHost.ConnectionCreated += (c) => connectedDelegate(new ConnectionInfo(c.EndPoint.Address.ToString(), c.EndPoint.Port, c.EndPoint.Port));
         serverHost.StartListen();
     }
 

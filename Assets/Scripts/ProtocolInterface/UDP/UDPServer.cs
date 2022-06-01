@@ -107,7 +107,7 @@ public class UDPServer : IServerProtocol
         {
             IPEndPoint ipEndPoint = endpoint as IPEndPoint;
             clients.Add(new Connection(endpoint,false),endpoint);
-            onClientConnected?.Invoke(new ConnectionInfo(ipEndPoint.Address.ToString(), ipEndPoint.Port, ipEndPoint.Port, clients.Count));
+            onClientConnected?.Invoke(new ConnectionInfo(ipEndPoint.Address.ToString(), ipEndPoint.Port, ipEndPoint.Port));
             ushort type = 0;
             serverSocket.SendTo(BitConverter.GetBytes(type), endpoint);
         }

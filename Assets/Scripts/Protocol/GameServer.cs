@@ -39,6 +39,8 @@ public class GameServer : MonoBehaviour
 
     private int myID = -1;
 
+    private int contClientID = 0;
+
     protected IServerProtocol serverProtocol;
 
 
@@ -72,10 +74,10 @@ public class GameServer : MonoBehaviour
     public void StartServer()
     {
         //serverProtocol = new MuseRPServer(reliablePort, noReliablePort, maxConnections, timeOut, timePing, reliablePercentage);
-        //serverProtocol = new TCPServer(reliablePort,maxConnections);
+       // serverProtocol = new TCPServer(reliablePort,maxConnections);
         //serverProtocol = new RufflesServer(reliablePort);
-        //serverProtocol = new GServerServer(reliablePort);
-        serverProtocol = new UDPServer(reliablePort, maxConnections);
+        serverProtocol = new GServerServer(reliablePort);
+        //serverProtocol = new UDPServer(reliablePort, maxConnections);
         serverProtocol.OnStart();
         ServerIniciado();
     }
@@ -150,13 +152,19 @@ public class GameServer : MonoBehaviour
     #region Jobs
     private void OnClientDisconnectedJob(ConnectionInfo info)
     {
+        Connection reliableConn = new Connection(info.IP, info.reliablePort, true);
+        if(!idPlayers.TryGetValue(reliableConn,out int playerID))
+        {
+            return;
+        }
         Console.instance.WriteLine("OnClientDisconnected");
-        Console.instance.WriteLine("Cliente desconectado" + info.ID);
-        Character deleted = players[info.ID];
+        Console.instance.WriteLine("Cliente desconectado" + playerID);
+
+        Character deleted = players[playerID];
         if (deleted == null) return;
         PoolManager.singleton.addToPool("Character", deleted.gameObject);
-        serverProtocol.SendToAll(6, BitConverter.GetBytes(info.ID), true);
-        players.Remove(info.ID);
+        serverProtocol.SendToAll(6, BitConverter.GetBytes(playerID), true);
+        players.Remove(playerID);
         characters.Remove(deleted);
         idPlayers.Remove(new Connection(info.IP, info.reliablePort, true));
     }
@@ -173,13 +181,15 @@ public class GameServer : MonoBehaviour
     }
     private void NewClientJob(ConnectionInfo clientInfo)
     {
-        Console.instance.WriteLine("Cliente " + clientInfo.ID + " conectado");
+        int currentID = contClientID;
+        contClientID++;
+        Console.instance.WriteLine("Cliente " + currentID + " conectado");
         Character newCharacter = PoolManager.singleton.getFromPool("Character").GetComponent<Character>();
-        newCharacter.CharacterCreated(clientInfo.ID, false, true);
+        newCharacter.CharacterCreated(currentID, false, true);
         Connection reliableConnection = new Connection(clientInfo.IP, clientInfo.reliablePort, true);
 
-        idPlayers.Add(reliableConnection, clientInfo.ID);
-        byte[] data = GameSeralizer.newCharacterToBytes(newCharacter.color, clientInfo.ID);
+        idPlayers.Add(reliableConnection, currentID);
+        byte[] data = GameSeralizer.newCharacterToBytes(newCharacter.color, currentID);
         byte[] charaInfo;
 
         serverProtocol.SendTo(3, data, reliableConnection, true);
@@ -194,7 +204,7 @@ public class GameServer : MonoBehaviour
 
         }
         EnemySpawner.instance.SendAllCurrentEnemies(reliableConnection);
-        players.Add(clientInfo.ID, newCharacter);
+        players.Add(currentID, newCharacter);
         characters.Add(newCharacter);
         serverProtocol.SendToAll(4, data, true);
         Debug.Log("Todo bien " + characters.Count);

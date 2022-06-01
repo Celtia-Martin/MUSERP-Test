@@ -132,14 +132,14 @@ public class TCPServer : IServerProtocol
     {
         clients.Add(connectionID);
         string address= tcpServer.GetClientAddress(connectionID);
-        ConnectionInfo clientInfo = new ConnectionInfo(address, connectionID, connectionID, connectionID);
+        ConnectionInfo clientInfo = new ConnectionInfo(address, connectionID, connectionID);
         onConnected?.Invoke(clientInfo);  
     }   
     private void ClientDisConnected(int connectionID)
     {
         clients.Remove(connectionID);
         string address= tcpServer.GetClientAddress(connectionID);
-        ConnectionInfo clientInfo = new ConnectionInfo(address, connectionID, connectionID, connectionID);
+        ConnectionInfo clientInfo = new ConnectionInfo(address, connectionID, connectionID);
         disconnectedDelegate?.Invoke(clientInfo);  
     }
 }
