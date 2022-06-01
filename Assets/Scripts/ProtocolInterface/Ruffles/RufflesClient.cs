@@ -45,6 +45,7 @@ public class RufflesClient : IClientProtocol
     {
         clientSocket = new RuffleSocket(ClientConfig);
         handlerDictionary = new Dictionary<ushort, Action<byte[]>>();
+        this.serverEndpoint = serverEndpoint;
 
     }
     public void AddHandler(ushort type, MessageDelegate handler)
