@@ -47,7 +47,10 @@ public class RufflesServer : IServerProtocol
             byte[] data = new byte[b.Length - 2];
             Array.Copy(b, 2, data, 0, b.Length - 2);
             ushort type = BitConverter.ToUInt16(b, 0);
-            handler?.Invoke(new MessageObject(type, 0, 0, false, false, false, false, data), null);
+            if (data.Length < MessageObject.maxBytesData)
+            {
+                handler?.Invoke(new MessageObject(type, 0, 0, false, false, false, false, data), null);
+            }
         });
     }
 
