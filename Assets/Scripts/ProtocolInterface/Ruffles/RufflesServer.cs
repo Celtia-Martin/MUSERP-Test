@@ -47,6 +47,7 @@ public class RufflesServer : IServerProtocol
             byte[] data = new byte[b.Length - 2];
             Array.Copy(b, 2, data, 0, b.Length - 2);
             ushort type = BitConverter.ToUInt16(b, 0);
+            Debug.Log("Recibido type " + type);
             if (data.Length < MessageObject.maxBytesData)
             {
                 handler?.Invoke(new MessageObject(type, 0, 0, false, false, false, false, data), null);
@@ -102,6 +103,7 @@ public class RufflesServer : IServerProtocol
         if (clients.TryGetValue(conn,out Ruffles.Connections.Connection value))
         {
             value.Send(new ArraySegment<byte>(data.ToArray()), channel, true, (ulong) messageCounter);
+            Debug.Log("Mandado mensaje " +type+" "+ data.Count);
         }
         Interlocked.Increment(ref messageCounter);
     }

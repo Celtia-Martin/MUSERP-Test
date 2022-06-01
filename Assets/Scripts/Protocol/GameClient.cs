@@ -65,9 +65,9 @@ public class GameClient : MonoBehaviour
         HostOptions options = new HostOptions(1, timeOut, 1000, 1, 59555, 59554, 1, 200, 100, null);
 
         ConnectionInfo serverInfo = new ConnectionInfo(IP, serverReliablePort, 0);
-        clientProtocol = new MuseRPClient(serverInfo, options, timeOutConnection, connectionTries);
+        //clientProtocol = new MuseRPClient(serverInfo, options, timeOutConnection, connectionTries);
         //clientProtocol = new TCPClient(UnityEngine.Random.Range(49152, 65535), new IPEndPoint(IPAddress.Parse(IP), serverReliablePort));
-        //clientProtocol = new RufflesClient(new IPEndPoint(IPAddress.Parse(IP), serverReliablePort));
+        clientProtocol = new RufflesClient(new IPEndPoint(IPAddress.Parse(IP), serverReliablePort));
         //clientProtocol = new GServerClient(serverReliablePort, IP);
        // clientProtocol = new UDPClient(new IPEndPoint(IPAddress.Parse(IP), serverReliablePort), UnityEngine.Random.Range(49152, 65535));
 
@@ -183,8 +183,9 @@ public class GameClient : MonoBehaviour
     }
     private void MyCharacterJob(MessageObject message, Connection source)
     {
-        Debug.Log("recibi mu character");
+       
         Color color = GameSeralizer.getCharacterFromBytes(message.getData(), out int id);
+     
         Console.instance.WriteLine("Mi cliente es el  " + id);
         mine = PoolManager.singleton.getFromPool("Character").GetComponent<Character>();
         mine.CharacterCreated(id, true, false);
@@ -194,6 +195,7 @@ public class GameClient : MonoBehaviour
         {
             players.Add(id, mine);
         }
+        Debug.Log("recibi mi character con color " + color.ToString());
     }
     private void EndCharacterJob(MessageObject message, Connection source)
     {
