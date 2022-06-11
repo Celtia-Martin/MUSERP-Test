@@ -23,7 +23,7 @@ public class RufflesServer : IServerProtocol
            },
         UseSimulator = false,
         EnableTimeouts= true,
-        ConnectionTimeout = 3000
+        ConnectionTimeout = 30000
     };
     private RuffleSocket serverSocket;
     private Dictionary<ushort, Action<byte[]>> handlerDictionary;
