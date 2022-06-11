@@ -15,15 +15,16 @@ public class RufflesServer : IServerProtocol
     {
         ChannelTypes = new ChannelType[]
            {
-                ChannelType.Reliable,
-                ChannelType.ReliableSequenced,
-                ChannelType.Unreliable,
-                ChannelType.UnreliableOrdered,
-                ChannelType.ReliableSequencedFragmented
+               ChannelType.Reliable,
+               ChannelType.ReliableSequenced,
+               ChannelType.Unreliable,
+               ChannelType.UnreliableOrdered,
+               ChannelType.ReliableSequencedFragmented
            },
         UseSimulator = false,
-        EnableTimeouts= true,
-        ConnectionTimeout = 30000
+        EnableTimeouts = true,
+        ConnectionTimeout = 30000,
+        EnablePacketMerging = false
     };
     private RuffleSocket serverSocket;
     private Dictionary<ushort, Action<byte[]>> handlerDictionary;

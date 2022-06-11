@@ -3,6 +3,7 @@ using Muse_RP.Message;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -126,7 +127,7 @@ public class UDPServer : IServerProtocol
                 ushort type = BitConverter.ToUInt16(buffer, 0);
                 if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
                 {
-                    value?.Invoke(buffer);
+                    value?.Invoke(buffer.Take(size).ToArray());
                 }
             }
             else
