@@ -27,7 +27,8 @@ public class RufflesClient : IClientProtocol
                 ChannelType.ReliableSequencedFragmented
            },
         EnableTimeouts = true,
-        ConnectionTimeout = 30000
+        ConnectionTimeout = 30000,
+        EnablePacketMerging= false
     };
 
     private RuffleSocket clientSocket;

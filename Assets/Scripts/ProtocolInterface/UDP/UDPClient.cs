@@ -2,6 +2,7 @@ using Muse_RP.Message;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -18,7 +19,7 @@ public class UDPClient : IClientProtocol
     private EndPoint serverEndPoint;
     private int port;
     private Thread listenerThread;
-    //Para gestionar la conexión: se usarán los mensajes 1 como init
+    //Para gestionar la conexiï¿½n: se usarï¿½n los mensajes 1 como init
     public UDPClient(EndPoint serverEndPoint, int port)
     {
         this.port = port;
@@ -62,6 +63,7 @@ public class UDPClient : IClientProtocol
     public void OnStart(OnConnectedDelegate onConnected)
     {
         this.onConnected += onConnected;
+        connected = true;
         handlerDictionary.Add(0, (b) => this.onConnected?.Invoke());
         listenerThread = new Thread(() => ListenerThread());
         listenerThread.Start();
@@ -95,11 +97,11 @@ public class UDPClient : IClientProtocol
     public void TryConnect()
     {
         ushort type = 0;
-        clientSocket.SendTo(BitConverter.GetBytes(type),serverEndPoint);
+        clientSocket.SendTo(BitConverter.GetBytes(type), serverEndPoint);
 
     }
-  
-    
+
+
     public void ListenerThread()
     {
         byte[] buffer = new byte[2000];
@@ -112,10 +114,11 @@ public class UDPClient : IClientProtocol
                 ushort type = BitConverter.ToUInt16(buffer, 0);
                 if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
                 {
-                    value?.Invoke(buffer);
+                    value?.Invoke(buffer.Take(size).ToArray());
                 }
             }
 
         }
+        Debug.Log("Disconnected");
     }
 }
