@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class GameSeralizer 
+public static class GameSeralizer
 {
     #region To Bytes
     public static byte[] positionInfoToBytes(Vector2 position, int id)
@@ -40,7 +40,7 @@ public static class GameSeralizer
     {
         return BitConverter.GetBytes(id);
     }
-    public static byte[] spawnEnemyToBytes(int index,ushort type)
+    public static byte[] spawnEnemyToBytes(int index, ushort type)
     {
         List<byte> buffer = new List<byte>();
         buffer.AddRange(BitConverter.GetBytes(index));
@@ -51,11 +51,11 @@ public static class GameSeralizer
     #region Get Information From Bytes
     public static Color getCharacterFromBytes(byte[] data, out int ID)
     {
-        if (data.Length != 16)
+        if (data.Length < 16)
         {
             // throw new IncorrectMessageFormatException();
             ID = -1;
-            return Color.white ;
+            return Color.white;
         }
         ID = BitConverter.ToInt32(data, 0);
         Color color = new Color();
@@ -67,11 +67,11 @@ public static class GameSeralizer
     }
     public static Vector2 getPositionFromBytes(byte[] data, out int ID)
     {
-        if (data.Length != 12)
+        if (data.Length < 12)
         {
             ID = -1;
             return Vector2.zero;
-          //  throw new IncorrectMessageFormatException();
+            //  throw new IncorrectMessageFormatException();
         }
 
         ID = BitConverter.ToInt32(data, 0);
@@ -84,7 +84,7 @@ public static class GameSeralizer
 
     public static int getPointsFromBytes(byte[] data, out int ID)
     {
-        if (data.Length != 8)
+        if (data.Length < 8)
         {
             ID = -1;
             return -1;
@@ -98,18 +98,18 @@ public static class GameSeralizer
 
     public static int getDisappearEnemyFromBytes(byte[] data)
     {
-        if (data.Length != 4)
+        if (data.Length < 4)
         {
             return -1;
             throw new IncorrectMessageFormatException();
         }
-        return  BitConverter.ToInt32(data, 0);
+        return BitConverter.ToInt32(data, 0);
     }
     public static int getSpawnEnemyFromBytes(byte[] data, out ushort type)
     {
-        if (data.Length != 6)
+        if (data.Length < 6)
         {
-            type= 52;
+            type = 52;
             return -1;
         }
         //throw new IncorrectMessageFormatException();
