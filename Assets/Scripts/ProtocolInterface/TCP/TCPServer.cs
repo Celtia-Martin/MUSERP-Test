@@ -20,15 +20,17 @@ public class TCPServer : IServerProtocol
     private int port;
     private int maxConnections;
     private int clientID;
-    private Thread update;
+    public Action onUpdate;
+
     private bool connected;
+
     public TCPServer(int port,int maxConnections)// o puerto aleatorio como en MUSE-RP https://stackoverflow.com/questions/36526332/simple-socket-server-in-unity
     {
         tcpServer = new Telepathy.Server(2000);
         this.port = port;
         this.maxConnections = maxConnections;
         tcpServer.NoDelay = true;
-       
+        onUpdate += OnUpdate;
         //tcpServer = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         //IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, port);
         //tcpServer.Bind(localEndPoint);
@@ -38,6 +40,8 @@ public class TCPServer : IServerProtocol
         //clients = new Dictionary<string, Socket>();
         //this.maxConnections = maxConnections;
         //listenerThread = new Thread[maxConnections];
+      
+        
     }
     public void AddHandler(ushort type, MessageDelegate handler)
     {
@@ -69,9 +73,8 @@ public class TCPServer : IServerProtocol
     public void OnStart()
     {
         connected = true;
-        update = new Thread(() => UpdateThread());
+    
         tcpServer.Start(port);
-        update.Start();
         tcpServer.OnConnected += ClientConnected;
         tcpServer.OnConnected += (i) => Debug.Log("Cliente " + i + " conectado");
         tcpServer.OnDisconnected += ClientDisConnected;
@@ -147,11 +150,11 @@ public class TCPServer : IServerProtocol
         ConnectionInfo clientInfo = new ConnectionInfo(address, connectionID, connectionID);
         disconnectedDelegate?.Invoke(clientInfo);  
     }
-    private void UpdateThread()
+    private void OnUpdate()
     {
         while (connected)
         {
-            tcpServer.Tick(10);
+            tcpServer.Tick(100);
         }
     }
 }

@@ -55,6 +55,10 @@ public class GameClient : MonoBehaviour
         {
             jobs.Dequeue().Invoke();
         }
+        if (clientProtocol is TCPClient)
+        {
+            ((TCPClient)clientProtocol).onUpdate?.Invoke();
+        }
     }
     #endregion
     public void StartClient(int serverReliablePort, string IP)

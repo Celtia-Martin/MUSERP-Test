@@ -69,15 +69,19 @@ public class GameServer : MonoBehaviour
         {
             jobs.Dequeue().Invoke();
         }
+        if(serverProtocol is TCPServer)
+        {
+            ((TCPServer)serverProtocol).onUpdate?.Invoke();
+        }
     }
     #endregion
     public void StartServer()
     {
         //serverProtocol = new MuseRPServer(reliablePort, noReliablePort, maxConnections, timeOut, timePing, reliablePercentage);
-       // serverProtocol = new TCPServer(reliablePort,maxConnections);
-        //serverProtocol = new RufflesServer(reliablePort);
-        serverProtocol = new GServerServer(reliablePort);
-        //serverProtocol = new UDPServer(reliablePort, maxConnections);
+       serverProtocol = new TCPServer(reliablePort,maxConnections);
+       // serverProtocol = new RufflesServer(reliablePort);
+         //serverProtocol = new GServerServer(reliablePort);
+       // serverProtocol = new UDPServer(reliablePort, maxConnections);
         serverProtocol.OnStart();
         ServerIniciado();
     }
