@@ -19,6 +19,7 @@ public class TCPClient : IClientProtocol
     private OnServerDisconneced onDisconnected;
     private OnConnectedDelegate onConnected;
     private EndPoint serverEndPoint;
+    private Thread updateThread;
 
     public TCPClient(int port,EndPoint serverEndPoint)// o puerto aleatorio como en MUSE-RP
     {
@@ -72,6 +73,9 @@ public class TCPClient : IClientProtocol
     public void OnStart(OnConnectedDelegate onConnected)
     {
         this.onConnected += onConnected;
+        connected = true;
+        updateThread = new Thread(() => UpdateThread());
+       
         TryConnect();
         tcpClient.OnConnected += () => this.onConnected?.Invoke();
         tcpClient.OnDisconnected += () => onDisconnected?.Invoke();
@@ -110,6 +114,8 @@ public class TCPClient : IClientProtocol
     {
         IPEndPoint endpoint = serverEndPoint as IPEndPoint;
         tcpClient.Connect(endpoint.Address.ToString(), endpoint.Port);
+        updateThread.Start();
+        Debug.Log("Connected?" + tcpClient.Connected);
 
     }
 
@@ -120,6 +126,13 @@ public class TCPClient : IClientProtocol
         if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
         {
             value?.Invoke(data.ToArray());
+        }
+    }
+    private void UpdateThread()
+    {
+        while (connected)
+        {
+            tcpClient.Tick(10);
         }
     }
 }
