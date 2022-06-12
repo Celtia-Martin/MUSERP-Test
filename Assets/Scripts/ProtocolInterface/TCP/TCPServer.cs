@@ -24,7 +24,7 @@ public class TCPServer : IServerProtocol
 
     private bool connected;
 
-    public TCPServer(int port,int maxConnections)// o puerto aleatorio como en MUSE-RP https://stackoverflow.com/questions/36526332/simple-socket-server-in-unity
+    public TCPServer(int port, int maxConnections)// o puerto aleatorio como en MUSE-RP https://stackoverflow.com/questions/36526332/simple-socket-server-in-unity
     {
         tcpServer = new Telepathy.Server(2000);
         this.port = port;
@@ -40,8 +40,8 @@ public class TCPServer : IServerProtocol
         //clients = new Dictionary<string, Socket>();
         //this.maxConnections = maxConnections;
         //listenerThread = new Thread[maxConnections];
-      
-        
+
+
     }
     public void AddHandler(ushort type, MessageDelegate handler)
     {
@@ -73,7 +73,7 @@ public class TCPServer : IServerProtocol
     public void OnStart()
     {
         connected = true;
-    
+
         tcpServer.Start(port);
         tcpServer.OnConnected += ClientConnected;
         tcpServer.OnConnected += (i) => Debug.Log("Cliente " + i + " conectado");
@@ -88,7 +88,7 @@ public class TCPServer : IServerProtocol
 
     public void SendEndToAll()
     {
-       // throw new NotImplementedException();
+        // throw new NotImplementedException();
     }
 
     public void SendTo(ushort type, int ID, byte[] message, bool reliable = true)
@@ -107,8 +107,8 @@ public class TCPServer : IServerProtocol
         }
         ArraySegment<byte> data = new ArraySegment<byte>(bytesToSend.ToArray());
 
-        tcpServer.Send(conn.ID, data);
-     
+        tcpServer.Send(conn.ID+1, data);
+
     }
 
     public void SendToAll(ushort type, byte[] message, bool reliable = true)
@@ -121,16 +121,16 @@ public class TCPServer : IServerProtocol
             bytesToSend.AddRange(message);
         }
         ArraySegment<byte> data = new ArraySegment<byte>(bytesToSend.ToArray());
-        for (int i =0; i<clients.Count; i++)
+        for (int i = 0; i < clients.Count; i++)
         {
             tcpServer.Send(clients[i], data);
         }
     }
 
-   private void OnData(int connectionID, ArraySegment<byte> data)
+    private void OnData(int connectionID, ArraySegment<byte> data)
     {
-        ushort type = BitConverter.ToUInt16( data.Take(2).ToArray(),0);
-        if(handlerDictionary.TryGetValue(type,out Action<byte[]> value))
+        ushort type = BitConverter.ToUInt16(data.Take(2).ToArray(), 0);
+        if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
         {
             value?.Invoke(data.ToArray());
         }
@@ -139,19 +139,19 @@ public class TCPServer : IServerProtocol
     private void ClientConnected(int connectionID)
     {
         clients.Add(connectionID);
-        string address= tcpServer.GetClientAddress(connectionID);
+        string address = tcpServer.GetClientAddress(connectionID);
         ConnectionInfo clientInfo = new ConnectionInfo(address, connectionID, connectionID);
-        onConnected?.Invoke(clientInfo);  
-    }   
+        onConnected?.Invoke(clientInfo);
+    }
     private void ClientDisConnected(int connectionID)
     {
         clients.Remove(connectionID);
-        string address= tcpServer.GetClientAddress(connectionID);
+        string address = tcpServer.GetClientAddress(connectionID);
         ConnectionInfo clientInfo = new ConnectionInfo(address, connectionID, connectionID);
-        disconnectedDelegate?.Invoke(clientInfo);  
+        disconnectedDelegate?.Invoke(clientInfo);
     }
     private void OnUpdate()
     {
-            tcpServer.Tick(100);
+        tcpServer.Tick(100);
     }
 }
