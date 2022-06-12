@@ -152,9 +152,6 @@ public class TCPServer : IServerProtocol
     }
     private void OnUpdate()
     {
-        while (connected)
-        {
             tcpServer.Tick(100);
-        }
     }
 }

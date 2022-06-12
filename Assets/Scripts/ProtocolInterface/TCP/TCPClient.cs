@@ -130,9 +130,6 @@ public class TCPClient : IClientProtocol
     }
     private void OnUpdate()
     {
-        while (connected)
-        {
             tcpClient.Tick(100);
-        }
     }
 }
