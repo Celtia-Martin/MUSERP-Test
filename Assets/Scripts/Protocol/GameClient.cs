@@ -46,8 +46,6 @@ public class GameClient : MonoBehaviour
         }
         players = new Dictionary<int, Character>();
         jobs = new Queue<Action>();
-
-
     }
     private void Update()
     {
@@ -63,15 +61,16 @@ public class GameClient : MonoBehaviour
     #endregion
     public void StartClient(int serverReliablePort, string IP)
     {
+       
         this.serverIP = IP;
         this.serverReliablePort = serverReliablePort;
         //MUSERP
         HostOptions options = new HostOptions(1, timeOut, 1000, 1, 59555, 59554, 1, 200, 100, null);
 
         ConnectionInfo serverInfo = new ConnectionInfo(IP, serverReliablePort, 0);
-        //clientProtocol = new MuseRPClient(serverInfo, options, timeOutConnection, connectionTries);
+        clientProtocol = new MuseRPClient(serverInfo, options, timeOutConnection, connectionTries);
         //clientProtocol = new TCPClient(UnityEngine.Random.Range(49152, 65535), new IPEndPoint(IPAddress.Parse(IP), serverReliablePort));
-        clientProtocol = new RufflesClient(new IPEndPoint(IPAddress.Parse(IP), serverReliablePort));
+       // clientProtocol = new RufflesClient(new IPEndPoint(IPAddress.Parse(IP), serverReliablePort));
         //clientProtocol = new GServerClient(serverReliablePort, IP);
        // clientProtocol = new UDPClient(new IPEndPoint(IPAddress.Parse(IP), serverReliablePort), UnityEngine.Random.Range(49152, 65535));
 
@@ -85,6 +84,9 @@ public class GameClient : MonoBehaviour
         clientProtocol.AddHandler(8, OnPointsReceive);
         clientProtocol.AddHandler(9, OnDisappearReceive);
         clientProtocol.AddHandler(10, OnSpawnEnemyReceive);
+        clientProtocol.AddHandler(11, OnStartGame);
+        clientProtocol.AddHandler(12, OnEndGame);
+
         clientProtocol.AddOnConnectionFailedHandler(() => jobs.Enqueue(() => Console.instance.WriteLine("Imposible conectar con el servidor")));
     }
     public void AddConnectionFailureHandler(Action handler)
@@ -95,6 +97,12 @@ public class GameClient : MonoBehaviour
     {
         clientProtocol.TryConnect();
     }
+
+    public void GameIsStarted()
+    {
+        //TODO: Start Methods in both client and server
+    }
+
     #region Senders
     public void SendPositionToServer(Vector2 position)
     {
@@ -156,6 +164,17 @@ public class GameClient : MonoBehaviour
     public void OnShotReceived(MessageObject message, Connection source)
     {
         jobs.Enqueue(() => OnShotMessageJob(message, source));
+    }
+
+    public void OnStartGame(MessageObject message, Connection source)
+    {
+        //TODO
+        jobs.Enqueue(() => OnStartGameJob(message, source));
+    }
+    public void OnEndGame(MessageObject message, Connection source)
+    {
+        //TODO
+        jobs.Enqueue(() => OnEndGameJob());
     }
 
     #endregion
@@ -253,6 +272,22 @@ public class GameClient : MonoBehaviour
     {
         int index = GameSeralizer.getSpawnEnemyFromBytes(message.getData(), out ushort type);
         EnemySpawner.instance.NewEnemyClient(index, type);
+    }
+    private void OnStartGameJob(MessageObject message, Connection source)
+    {
+        Character.myCharacter.StartGame();
+        UIManager.StartGame();
+    }
+    private void OnEndGameJob()
+    {
+        string results = "";
+        int i = 0;
+        foreach(Character chara in players.Values)
+        {
+            results += "Player " + i + " :" + chara.getPoints() + "\n";
+            i++;
+        }
+        UIManager.OnEndGame(results);
     }
     #endregion
 }

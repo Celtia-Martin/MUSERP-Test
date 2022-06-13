@@ -43,9 +43,25 @@ public class GameServer : MonoBehaviour
 
     protected IServerProtocol serverProtocol;
 
-
+    private bool isServer = false;
 
     #region Unity Events
+    public static void OnGameEnd()
+    {
+        if (!instance.isServer)
+        {
+            return;
+        }
+        string results = "";
+        int i = 0;
+        foreach (Character chara in instance.players.Values)
+        {
+            results += "Player " + i + " :" + chara.getPoints() + "\n";
+            i++;
+        }
+        UIManager.OnEndGame(results);
+        instance.serverProtocol.SendToAll(12, null, true);
+    }
     private void Awake()
     {
         if (instance == null)
@@ -61,7 +77,6 @@ public class GameServer : MonoBehaviour
         idPlayers = new Dictionary<Connection, int>();
         characters = new List<Character>();
         jobs = new Queue<Action>();
-
     }
     private void Update()
     {
@@ -69,7 +84,7 @@ public class GameServer : MonoBehaviour
         {
             jobs.Dequeue().Invoke();
         }
-        if(serverProtocol is TCPServer)
+        if (serverProtocol is TCPServer)
         {
             ((TCPServer)serverProtocol).onUpdate?.Invoke();
         }
@@ -77,14 +92,25 @@ public class GameServer : MonoBehaviour
     #endregion
     public void StartServer()
     {
-        //serverProtocol = new MuseRPServer(reliablePort, noReliablePort, maxConnections, timeOut, timePing, reliablePercentage);
-       serverProtocol = new TCPServer(reliablePort,maxConnections);
-       // serverProtocol = new RufflesServer(reliablePort);
-         //serverProtocol = new GServerServer(reliablePort);
-       // serverProtocol = new UDPServer(reliablePort, maxConnections);
+        isServer = true;
+        serverProtocol = new MuseRPServer(reliablePort, noReliablePort, maxConnections, timeOut, timePing, reliablePercentage);
+        //serverProtocol = new TCPServer(reliablePort,maxConnections);
+        // serverProtocol = new RufflesServer(reliablePort);
+        //serverProtocol = new GServerServer(reliablePort);
+        // serverProtocol = new UDPServer(reliablePort, maxConnections);
         serverProtocol.OnStart();
         ServerIniciado();
     }
+
+    public void GameIsStarted()
+    {
+        //TODO: Start Methods in both client and server
+        Character.myCharacter.StartGame();
+        EnemySpawner.instance.InitEnemySpawner(true);
+        serverProtocol.SendToAll(11, null, true);
+        UIManager.StartGame();
+    }
+
     public int GetReliablePort() { return reliablePort; }
     #region Event Handlers
     private void OnPositionReceive(MessageObject message, Connection source)
@@ -118,7 +144,7 @@ public class GameServer : MonoBehaviour
     {
         InitMyCharacter();
         serverProtocol.InitServer(OnClientConnected, OnClientDisconnected);
-        EnemySpawner.instance.InitEnemySpawner(true);
+
 
     }
     private void OnClientDisconnected(ConnectionInfo info)
@@ -140,16 +166,17 @@ public class GameServer : MonoBehaviour
     {
         serverProtocol.SendToAll(8, GameSeralizer.pointsToBytes(ID, points), true);
     }
-    public void SendDisappearEnemy(int ID){
+    public void SendDisappearEnemy(int ID)
+    {
         serverProtocol.SendToAll(9, GameSeralizer.enemyDisappearToBytes(ID), true);
     }
-    public void SendSpawnEnemy(int index,ushort type)
+    public void SendSpawnEnemy(int index, ushort type)
     {
-        serverProtocol.SendToAll(10, GameSeralizer.spawnEnemyToBytes(index,type), true);
+        serverProtocol.SendToAll(10, GameSeralizer.spawnEnemyToBytes(index, type), true);
     }
-    public void SendSpawnEnemy(int index, ushort type,Connection conn)
+    public void SendSpawnEnemy(int index, ushort type, Connection conn)
     {
-        serverProtocol.SendTo(10, GameSeralizer.spawnEnemyToBytes(index, type),conn, true);
+        serverProtocol.SendTo(10, GameSeralizer.spawnEnemyToBytes(index, type), conn, true);
     }
 
     #endregion
@@ -157,7 +184,7 @@ public class GameServer : MonoBehaviour
     private void OnClientDisconnectedJob(ConnectionInfo info)
     {
         Connection reliableConn = new Connection(info.IP, info.reliablePort, true);
-        if(!idPlayers.TryGetValue(reliableConn,out int playerID))
+        if (!idPlayers.TryGetValue(reliableConn, out int playerID))
         {
             return;
         }
@@ -223,5 +250,9 @@ public class GameServer : MonoBehaviour
             SendPositionServer(position, id);
         }
     }
+
+    #endregion
+    #region Temporization
+    //TODO
     #endregion
 }

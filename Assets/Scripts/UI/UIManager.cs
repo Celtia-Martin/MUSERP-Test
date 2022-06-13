@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
@@ -9,6 +10,12 @@ public class UIManager : MonoBehaviour
     //Panel References
     [SerializeField] private GameObject menuParent;
     [SerializeField] private GameObject mainMenu;
+
+    [SerializeField] private GameObject prevGameServer;
+    [SerializeField] private GameObject prevGameClient;
+
+    [SerializeField] private GameObject resultsScreen;
+
     [SerializeField] private GameObject clientMenu;
     [SerializeField] private GameObject serverMenu;
     //Buttons References
@@ -17,18 +24,50 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button startServer;
     [SerializeField] private Button startClient;
     [SerializeField] private Button retryConnection;
+
+    [SerializeField] private Button startGame;
+    [SerializeField] private Button returnGame;
+
     //Inputs References
     [SerializeField] private InputField serverPortInput;
     [SerializeField] private InputField serverIPInput;
     //Text References
     [SerializeField] private Text portText;
     [SerializeField] private Text IPText;
+
+    [SerializeField] private Text resultsText;
+
+    [SerializeField] private Text textClock;
     //Network Managers References
     [SerializeField] private GameObject serverObject;
     [SerializeField] private GameObject clientObject;
 
+    public static UIManager instance;
 
+    public static void StartGame()
+    {
+        instance.prevGameServer.SetActive(false);
+        instance.prevGameClient.SetActive(false);
+        GameTimer.StartTimer(instance.textClock);
 
+    }
+    public static void OnEndGame(string results)
+    {
+        instance.resultsScreen.SetActive(true);
+        instance.resultsText.text = results;
+
+    }
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
     private void Start()
     {
         createClient.onClick.AddListener(() => OnCreateClient());
@@ -36,6 +75,12 @@ public class UIManager : MonoBehaviour
         startClient.onClick.AddListener(() => OnStartClient());
         startServer.onClick.AddListener(() => OnStartServer());
         retryConnection.onClick.AddListener(() => OnRetryConnection());
+        startGame.onClick.AddListener(() => OnStartGame());
+        returnGame.onClick.AddListener(() => SceneManager.LoadScene(SceneManager.GetActiveScene().name));
+    }
+    private void Update()
+    {
+        GameTimer.instance?.OnUpdate();
     }
 
     #region Button Actions
@@ -43,7 +88,7 @@ public class UIManager : MonoBehaviour
     {
         mainMenu.SetActive(false);
         serverObject.SetActive(true);
-        portText.text += " "+GameServer.instance.GetReliablePort();
+        portText.text += " " + GameServer.instance.GetReliablePort();
         serverMenu.SetActive(true);
         StartCoroutine(GetIPAddress());
     }
@@ -52,18 +97,21 @@ public class UIManager : MonoBehaviour
         mainMenu.SetActive(false);
         clientObject.SetActive(true);
         clientMenu.SetActive(true);
-       
+
     }
     private void OnStartClient()
     {
         if (serverIPInput.text.Trim().Equals("") || serverPortInput.text.Trim().Equals("")) { return; }
         menuParent.SetActive(false);
-        GameClient.instance.StartClient(int.Parse(serverPortInput.text),serverIPInput.text);
+        GameClient.instance.StartClient(int.Parse(serverPortInput.text), serverIPInput.text);
         GameClient.instance.AddConnectionFailureHandler(() => retryConnection.gameObject.SetActive(true));
+        prevGameClient.SetActive(true);
+
     }
     private void OnStartServer()
     {
         menuParent.SetActive(false);
+        prevGameServer.SetActive(true);
         GameServer.instance.StartServer();
     }
     private void OnRetryConnection()
@@ -71,6 +119,16 @@ public class UIManager : MonoBehaviour
         retryConnection.gameObject.SetActive(false);
         GameClient.instance.TryConnect();
     }
+    private void OnStartGame()
+    {
+        Debug.Log("Start Game");
+        prevGameClient.SetActive(false);
+        prevGameServer.SetActive(false);
+        GameClient.instance?.GameIsStarted();
+        GameServer.instance?.GameIsStarted();
+
+    }
+
     #endregion
     #region Utils
     IEnumerator GetIPAddress()
@@ -95,6 +153,6 @@ public class UIManager : MonoBehaviour
 
         IPText.text += " " + a4;
     }
-   
+
     #endregion
 }

@@ -49,6 +49,9 @@ public class Character : MonoBehaviour
     private bool moved = false;
     private bool canShot = true;
 
+    //Reference
+
+    public static Character myCharacter;
    
     #region Public Methods
 
@@ -84,11 +87,10 @@ public class Character : MonoBehaviour
 
             }
 
-            customUpdate += OnCustomUpdate;
-        
+            myCharacter = this;
+
         }
-        customFixedUpdate += OnCustomFixedUpdate;
-        arrowPivot.SetActive(true);
+       
         return this.color;
     }
 
@@ -103,6 +105,12 @@ public class Character : MonoBehaviour
         Vector2 direction = position - (Vector2)transform.position;
         Shot shotInstance = PoolManager.singleton.getFromPool("Shot").GetComponent<Shot>();
         shotInstance.InitBullet(position, direction, color,isServer,this);
+    }
+    public void StartGame()
+    {
+        customUpdate += OnCustomUpdate;
+        customFixedUpdate += OnCustomFixedUpdate;
+        arrowPivot.SetActive(true);
     }
     #endregion
     #region Getters and Setters
