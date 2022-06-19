@@ -234,14 +234,14 @@ public class GameServer : MonoBehaviour
             Console.instance.WriteLine("Mandando character " + chara.getID());
             charaInfo = GameSerializer.newCharacterToBytes(chara.color, chara.getID());
 
-            serverProtocol.SendTo(4, charaInfo, reliableConnection, true);
-            serverProtocol.SendTo(8, GameSerializer.pointsToBytes(chara.getID(), chara.getPoints()), reliableConnection, true);
+           serverProtocol.SendTo(4, charaInfo, reliableConnection, true);
+           serverProtocol.SendTo(8, GameSerializer.pointsToBytes(chara.getID(), chara.getPoints()), reliableConnection, true);
 
         }
         EnemySpawner.instance.SendAllCurrentEnemies(reliableConnection);
         players.Add(currentID, newCharacter);
         characters.Add(newCharacter);
-        serverProtocol.SendToAll(4, data, true);
+        //serverProtocol.SendToAll(4, data, true);
         Debug.Log("Todo bien " + characters.Count);
     }
     private void OnPositionChangeJob(MessageObject message, Connection source)
