@@ -32,10 +32,11 @@ public class GServerServer : IServerProtocol
 
     public void InitServer(OnClientConnectedDelegate connectedDelegate, OnClientDisconnected disconnectedDelegate)
     {
-        Timer timer = new Timer(o => serverHost.Tick());
-        timer.Change(10, 10);
+        
         serverHost.ConnectionCreated += (c) => connectedDelegate(new ConnectionInfo(c.EndPoint.Address.ToString(), c.EndPoint.Port, c.EndPoint.Port));
         serverHost.StartListen();
+        Timer timer = new Timer(o => serverHost.Tick());
+        timer.Change(10, 10);
     }
 
     public void SendTo(ushort type, int ID, byte[] message, bool reliable = true)
