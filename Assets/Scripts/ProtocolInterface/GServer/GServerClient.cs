@@ -11,7 +11,6 @@ public class GServerClient : IClientProtocol
     private int port = 7777;
     private Host clientHost;
     private IPEndPoint serverEndpoint;
-
     public GServerClient(int serverPort, string ipAddress)
     {
         IPAddress address = IPAddress.Parse(ipAddress);
@@ -21,9 +20,13 @@ public class GServerClient : IClientProtocol
 
     public void AddHandler(ushort type, MessageDelegate handler)
     {
-
+        if (type == 3)
+        {
+            type = 13;
+        }
         clientHost.AddHandler((short)type, (m, s) =>
         {
+          
             MessageObject messageObject = new MessageObject(type,0,0,false,false,false,false,m.Body);
             Muse_RP.Hosts.Connection conn = new Muse_RP.Hosts.Connection(s.EndPoint, true);
             handler?.Invoke(messageObject, conn);
@@ -33,6 +36,10 @@ public class GServerClient : IClientProtocol
 
     public void AddHandler(ushort type, Action<byte[]> handler)
     {
+        if (type == 3)
+        {
+            type = 13;
+        }
         clientHost.AddHandler((short)type, (m, s) =>
         {
             handler?.Invoke(m.Body);
@@ -82,6 +89,10 @@ public class GServerClient : IClientProtocol
 
     public void SendToServer(ushort type, byte[] data, bool reliable = true)
     {
+        if (type == 3)
+        {
+            type = 13;
+        }
         Message message = new Message((short)type, Mode.Reliable, data);
         clientHost.Send(message);
     }
@@ -90,6 +101,8 @@ public class GServerClient : IClientProtocol
     {
         clientHost.BeginConnect(serverEndpoint);
     }
+
+
 }
 
 

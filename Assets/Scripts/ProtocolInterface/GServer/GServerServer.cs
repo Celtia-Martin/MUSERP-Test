@@ -14,10 +14,12 @@ using GServer;
 public class GServerServer : IServerProtocol
 {
     private GServer.Host serverHost;
+    private GameServer gameServer;
 
-    public GServerServer(int port)
+    public GServerServer(int port, GameServer gameServer)
     {
         serverHost = new GServer.Host(port);
+        this.gameServer = gameServer;
     }
     public void OnStart()
     {
@@ -32,11 +34,11 @@ public class GServerServer : IServerProtocol
 
     public void InitServer(OnClientConnectedDelegate connectedDelegate, OnClientDisconnected disconnectedDelegate)
     {
-        
-        serverHost.ConnectionCreated += (c) => connectedDelegate(new ConnectionInfo(c.EndPoint.Address.ToString(), c.EndPoint.Port, c.EndPoint.Port));
         serverHost.StartListen();
         Timer timer = new Timer(o => serverHost.Tick());
         timer.Change(10, 10);
+        serverHost.ConnectionCreated += (c) =>connectedDelegate(new ConnectionInfo(c.EndPoint.Address.ToString(), c.EndPoint.Port, c.EndPoint.Port));
+     
     }
 
     public void SendTo(ushort type, int ID, byte[] message, bool reliable = true)
@@ -46,6 +48,10 @@ public class GServerServer : IServerProtocol
 
     public void SendTo(ushort type, byte[] data, Connection conn, bool reliable = true)
     {
+        if (type == 3)
+        {
+            type = 13;
+        }
         GServer.Connection.Connection gServerConnection = new GServer.Connection.Connection(new System.Net.IPEndPoint(IPAddress.Parse(conn.IP), conn.port));
         Message message = new Message((short)type, Mode.Reliable, data);
         serverHost.Send(message, gServerConnection);
@@ -53,6 +59,10 @@ public class GServerServer : IServerProtocol
 
     public void SendToAll(ushort type, byte[] data, bool reliable = true)
     {
+        if (type == 3)
+        {
+            type = 13;
+        }
         Message message  = new Message((short)type, Mode.Reliable, data);
         foreach (GServer.Connection.Connection conn in serverHost.GetConnections())
         {
@@ -71,8 +81,13 @@ public class GServerServer : IServerProtocol
 
     public void AddHandler(ushort type, MessageDelegate handler)
     {
+        if (type == 3)
+        {
+            type = 13;
+        }
         serverHost.AddHandler((short)type, (m, s) =>
         {
+            Debug.Log("Mensaje nuevo: " + type + "Con, además: " + m.Body.Length + " de tamaño");
             MessageObject messageObject = new MessageObject(type, 0, 0, false, false, false, false, m.Body);
             Muse_RP.Hosts.Connection conn = new Muse_RP.Hosts.Connection(s.EndPoint, true);
             handler?.Invoke(messageObject, conn);
@@ -82,6 +97,10 @@ public class GServerServer : IServerProtocol
 
     public void AddHandler(ushort type, Action<byte[]> handler)
     {
+        if (type == 3)
+        {
+            type = 13;
+        }
         serverHost.AddHandler((short)type, (m, s) =>
         {
             handler?.Invoke(m.Body);

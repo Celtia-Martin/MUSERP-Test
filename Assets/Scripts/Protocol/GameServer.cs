@@ -48,7 +48,7 @@ public class GameServer : MonoBehaviour
     #region Unity Events
     public static void OnGameEnd()
     {
-        if (!instance.isServer)
+        if (instance==null || !instance.isServer)
         {
             return;
         }
@@ -90,13 +90,17 @@ public class GameServer : MonoBehaviour
         }
     }
     #endregion
+    public void AddJob(Action newJob)
+    {
+        jobs.Enqueue(newJob);
+    }
     public void StartServer()
     {
         isServer = true;
         //serverProtocol = new MuseRPServer(reliablePort, noReliablePort, maxConnections, timeOut, timePing, reliablePercentage);
         //serverProtocol = new TCPServer(reliablePort,maxConnections);
         // serverProtocol = new RufflesServer(reliablePort);
-        serverProtocol = new GServerServer(reliablePort);
+        serverProtocol = new GServerServer(reliablePort,this);
         // serverProtocol = new UDPServer(reliablePort, maxConnections);
         serverProtocol.OnStart();
         ServerIniciado();
@@ -156,27 +160,27 @@ public class GameServer : MonoBehaviour
     #region Senders
     public void SendPositionServer(Vector2 position, int ID)
     {
-        serverProtocol.SendToAll(5, GameSeralizer.positionInfoToBytes(position, ID), false);
+        serverProtocol.SendToAll(5, GameSerializer.positionInfoToBytes(position, ID), false);
     }
     public void SendShot(Vector2 position, int ID)
     {
-        serverProtocol.SendToAll(7, GameSeralizer.positionInfoToBytes(position, ID), true);
+        serverProtocol.SendToAll(7, GameSerializer.positionInfoToBytes(position, ID), true);
     }
     public void SendPoints(int points, int ID)
     {
-        serverProtocol.SendToAll(8, GameSeralizer.pointsToBytes(ID, points), true);
+        serverProtocol.SendToAll(8, GameSerializer.pointsToBytes(ID, points), true);
     }
     public void SendDisappearEnemy(int ID)
     {
-        serverProtocol.SendToAll(9, GameSeralizer.enemyDisappearToBytes(ID), true);
+        serverProtocol.SendToAll(9, GameSerializer.enemyDisappearToBytes(ID), true);
     }
     public void SendSpawnEnemy(int index, ushort type)
     {
-        serverProtocol.SendToAll(10, GameSeralizer.spawnEnemyToBytes(index, type), true);
+        serverProtocol.SendToAll(10, GameSerializer.spawnEnemyToBytes(index, type), true);
     }
     public void SendSpawnEnemy(int index, ushort type, Connection conn)
     {
-        serverProtocol.SendTo(10, GameSeralizer.spawnEnemyToBytes(index, type), conn, true);
+        serverProtocol.SendTo(10, GameSerializer.spawnEnemyToBytes(index, type), conn, true);
     }
 
     #endregion
@@ -202,7 +206,7 @@ public class GameServer : MonoBehaviour
 
     private void ShotReceivedJob(MessageObject message, Connection source)
     {
-        Vector2 position = GameSeralizer.getPositionFromBytes(message.getData(), out int ID);
+        Vector2 position = GameSerializer.getPositionFromBytes(message.getData(), out int ID);
 
         if (players.TryGetValue(ID, out Character chara))
         {
@@ -220,7 +224,7 @@ public class GameServer : MonoBehaviour
         Connection reliableConnection = new Connection(clientInfo.IP, clientInfo.reliablePort, true);
 
         idPlayers.Add(reliableConnection, currentID);
-        byte[] data = GameSeralizer.newCharacterToBytes(newCharacter.color, currentID);
+        byte[] data = GameSerializer.newCharacterToBytes(newCharacter.color, currentID);
         byte[] charaInfo;
 
         serverProtocol.SendTo(3, data, reliableConnection, true);
@@ -228,10 +232,10 @@ public class GameServer : MonoBehaviour
         foreach (Character chara in characters)
         {
             Console.instance.WriteLine("Mandando character " + chara.getID());
-            charaInfo = GameSeralizer.newCharacterToBytes(chara.color, chara.getID());
+            charaInfo = GameSerializer.newCharacterToBytes(chara.color, chara.getID());
 
             serverProtocol.SendTo(4, charaInfo, reliableConnection, true);
-            serverProtocol.SendTo(8, GameSeralizer.pointsToBytes(chara.getID(), chara.getPoints()), reliableConnection, true);
+            serverProtocol.SendTo(8, GameSerializer.pointsToBytes(chara.getID(), chara.getPoints()), reliableConnection, true);
 
         }
         EnemySpawner.instance.SendAllCurrentEnemies(reliableConnection);
@@ -243,7 +247,7 @@ public class GameServer : MonoBehaviour
     private void OnPositionChangeJob(MessageObject message, Connection source)
     {
         Debug.Log("ha recibido posicion");
-        Vector2 position = GameSeralizer.getPositionFromBytes(message.getData(), out int id);
+        Vector2 position = GameSerializer.getPositionFromBytes(message.getData(), out int id);
         if (players.TryGetValue(id, out Character chara))
         {
             chara.SetPosition(position);

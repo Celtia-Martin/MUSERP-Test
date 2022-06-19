@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class GameSeralizer
+public static class GameSerializer
 {
     #region To Bytes
     public static byte[] positionInfoToBytes(Vector2 position, int id)

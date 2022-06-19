@@ -106,12 +106,12 @@ public class GameClient : MonoBehaviour
     #region Senders
     public void SendPositionToServer(Vector2 position)
     {
-        clientProtocol.SendToServer(5, GameSeralizer.positionInfoToBytes(position, myID), false);
+        clientProtocol.SendToServer(5, GameSerializer.positionInfoToBytes(position, myID), false);
 
     }
     public void SendShotServer(Vector2 position, int ID)
     {
-        clientProtocol.SendToServer(7, GameSeralizer.positionInfoToBytes(position, ID));
+        clientProtocol.SendToServer(7, GameSerializer.positionInfoToBytes(position, ID));
     }
 
     #endregion
@@ -196,7 +196,7 @@ public class GameClient : MonoBehaviour
     }
     private void NewCharacterJob(MessageObject message, Connection source)
     {
-        Color color = GameSeralizer.getCharacterFromBytes(message.getData(), out int id);
+        Color color = GameSerializer.getCharacterFromBytes(message.getData(), out int id);
         Console.instance.WriteLine("Nuevo cliente " + id);
         if (id == myID) return;
         Character newChara = PoolManager.singleton.getFromPool("Character").GetComponent<Character>();
@@ -207,7 +207,7 @@ public class GameClient : MonoBehaviour
     private void MyCharacterJob(MessageObject message, Connection source)
     {
        
-        Color color = GameSeralizer.getCharacterFromBytes(message.getData(), out int id);
+        Color color = GameSerializer.getCharacterFromBytes(message.getData(), out int id);
      
         Console.instance.WriteLine("Mi cliente es el  " + id);
         mine = PoolManager.singleton.getFromPool("Character").GetComponent<Character>();
@@ -233,7 +233,7 @@ public class GameClient : MonoBehaviour
     private void OnPositionMessageJob(MessageObject message, Connection source)
     {
         Debug.Log("recibi la posicion");
-        Vector2 position = GameSeralizer.getPositionFromBytes(message.getData(), out int id);
+        Vector2 position = GameSerializer.getPositionFromBytes(message.getData(), out int id);
         if (id == myID) return;
         if (players.TryGetValue(id, out Character chara))
         {
@@ -242,7 +242,7 @@ public class GameClient : MonoBehaviour
     }
     private void OnShotMessageJob(MessageObject message, Connection source)
     {
-        Vector2 position = GameSeralizer.getPositionFromBytes(message.getData(), out int ID);
+        Vector2 position = GameSerializer.getPositionFromBytes(message.getData(), out int ID);
         if (ID == myID) return;
         if (players.TryGetValue(ID, out Character chara))
         {
@@ -258,7 +258,7 @@ public class GameClient : MonoBehaviour
 
     private void OnPointsJob(MessageObject message, Connection source)
     {
-        int points = GameSeralizer.getPointsFromBytes(message.getData(), out int ID);
+        int points = GameSerializer.getPointsFromBytes(message.getData(), out int ID);
         if(players.TryGetValue(ID,out Character value))
         {
             value.SetPoints(points);
@@ -266,11 +266,11 @@ public class GameClient : MonoBehaviour
     }
     private void OnDisappearJob(MessageObject message, Connection source)
     {
-        EnemySpawner.instance.RemoveEnemyClient(GameSeralizer.getDisappearEnemyFromBytes(message.getData()));
+        EnemySpawner.instance.RemoveEnemyClient(GameSerializer.getDisappearEnemyFromBytes(message.getData()));
     }
     private void OnSpawnJob(MessageObject message, Connection source)
     {
-        int index = GameSeralizer.getSpawnEnemyFromBytes(message.getData(), out ushort type);
+        int index = GameSerializer.getSpawnEnemyFromBytes(message.getData(), out ushort type);
         EnemySpawner.instance.NewEnemyClient(index, type);
     }
     private void OnStartGameJob(MessageObject message, Connection source)
