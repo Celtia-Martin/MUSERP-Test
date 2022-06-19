@@ -37,7 +37,14 @@ public class GServerServer : IServerProtocol
         serverHost.StartListen();
         Timer timer = new Timer(o => serverHost.Tick());
         timer.Change(10, 10);
-        serverHost.ConnectionCreated += (c) =>connectedDelegate(new ConnectionInfo(c.EndPoint.Address.ToString(), c.EndPoint.Port, c.EndPoint.Port));
+        serverHost.ConnectionCreated += (c) =>
+        {
+            Thread t = new Thread(() =>{
+                Thread.Sleep(1000);
+                connectedDelegate(new ConnectionInfo(c.EndPoint.Address.ToString(), c.EndPoint.Port, c.EndPoint.Port));
+            });
+            t.Start();
+        }; 
      
     }
 
@@ -48,10 +55,7 @@ public class GServerServer : IServerProtocol
 
     public void SendTo(ushort type, byte[] data, Connection conn, bool reliable = true)
     {
-        if (type == 3)
-        {
-            type = 13;
-        }
+
         GServer.Connection.Connection gServerConnection = new GServer.Connection.Connection(new System.Net.IPEndPoint(IPAddress.Parse(conn.IP), conn.port));
         Message message = new Message((short)type, Mode.Reliable, data);
         serverHost.Send(message, gServerConnection);
@@ -59,10 +63,7 @@ public class GServerServer : IServerProtocol
 
     public void SendToAll(ushort type, byte[] data, bool reliable = true)
     {
-        if (type == 3)
-        {
-            type = 13;
-        }
+
         Message message  = new Message((short)type, Mode.Reliable, data);
         foreach (GServer.Connection.Connection conn in serverHost.GetConnections())
         {
@@ -81,10 +82,7 @@ public class GServerServer : IServerProtocol
 
     public void AddHandler(ushort type, MessageDelegate handler)
     {
-        if (type == 3)
-        {
-            type = 13;
-        }
+
         serverHost.AddHandler((short)type, (m, s) =>
         {
             Debug.Log("Mensaje nuevo: " + type + "Con, además: " + m.Body.Length + " de tamaño");
@@ -97,10 +95,7 @@ public class GServerServer : IServerProtocol
 
     public void AddHandler(ushort type, Action<byte[]> handler)
     {
-        if (type == 3)
-        {
-            type = 13;
-        }
+
         serverHost.AddHandler((short)type, (m, s) =>
         {
             handler?.Invoke(m.Body);

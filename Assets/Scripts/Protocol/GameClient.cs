@@ -78,7 +78,7 @@ public class GameClient : MonoBehaviour
 
         clientProtocol.AddHandler(4, OnNewCharacterMessage);
         clientProtocol.AddHandler(5, OnPositionMessage);
-        clientProtocol.AddHandler(3, MyCharacterMessage);
+        clientProtocol.AddHandler(66, MyCharacterMessage);
         clientProtocol.AddHandler(6, OnEndClientReceived);
         clientProtocol.AddHandler(7, OnShotReceived);
         clientProtocol.AddHandler(8, OnPointsReceive);
@@ -184,7 +184,7 @@ public class GameClient : MonoBehaviour
         Console.instance.WriteLine("Desconectado del servidor");
         //Remove all handlers????
         clientProtocol.RemoveHandler(4);
-        clientProtocol.RemoveHandler(3);
+        clientProtocol.RemoveHandler(66);
         clientProtocol.RemoveHandler(5);
         clientProtocol.RemoveHandler(6);
         clientProtocol.RemoveHandler(7);   

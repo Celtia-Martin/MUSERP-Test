@@ -99,7 +99,7 @@ public class GameServer : MonoBehaviour
         isServer = true;
         //serverProtocol = new MuseRPServer(reliablePort, noReliablePort, maxConnections, timeOut, timePing, reliablePercentage);
         //serverProtocol = new TCPServer(reliablePort,maxConnections);
-        // serverProtocol = new RufflesServer(reliablePort);
+        //serverProtocol = new RufflesServer(reliablePort);
         serverProtocol = new GServerServer(reliablePort,this);
         // serverProtocol = new UDPServer(reliablePort, maxConnections);
         serverProtocol.OnStart();
@@ -227,7 +227,7 @@ public class GameServer : MonoBehaviour
         byte[] data = GameSerializer.newCharacterToBytes(newCharacter.color, currentID);
         byte[] charaInfo;
 
-        serverProtocol.SendTo(3, data, reliableConnection, true);
+        serverProtocol.SendTo(66, data, reliableConnection, true);
 
         foreach (Character chara in characters)
         {

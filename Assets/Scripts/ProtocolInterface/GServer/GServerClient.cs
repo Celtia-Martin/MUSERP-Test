@@ -20,10 +20,6 @@ public class GServerClient : IClientProtocol
 
     public void AddHandler(ushort type, MessageDelegate handler)
     {
-        if (type == 3)
-        {
-            type = 13;
-        }
         clientHost.AddHandler((short)type, (m, s) =>
         {
           
@@ -36,10 +32,7 @@ public class GServerClient : IClientProtocol
 
     public void AddHandler(ushort type, Action<byte[]> handler)
     {
-        if (type == 3)
-        {
-            type = 13;
-        }
+
         clientHost.AddHandler((short)type, (m, s) =>
         {
             handler?.Invoke(m.Body);
@@ -89,10 +82,7 @@ public class GServerClient : IClientProtocol
 
     public void SendToServer(ushort type, byte[] data, bool reliable = true)
     {
-        if (type == 3)
-        {
-            type = 13;
-        }
+
         Message message = new Message((short)type, Mode.Reliable, data);
         clientHost.Send(message);
     }
