@@ -29,7 +29,6 @@ public class RufflesClient : IClientProtocol
         EnableTimeouts = true,
         ConnectionTimeout = 30000,
         EnablePacketMerging= false,
-        MaxMergeMessageSize = 10,
         MaxBufferSize = 100
     };
 

@@ -26,7 +26,6 @@ public class RufflesServer : IServerProtocol
         EnableTimeouts = true,
         ConnectionTimeout = 30000,
         EnablePacketMerging = false,
-        MaxMergeMessageSize=10,
         MaxBufferSize=100
       
     };
