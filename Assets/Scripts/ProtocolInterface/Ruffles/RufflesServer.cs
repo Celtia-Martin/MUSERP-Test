@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System.Text;
 using UnityEngine;
 
 public class RufflesServer : IServerProtocol
@@ -24,7 +25,10 @@ public class RufflesServer : IServerProtocol
         UseSimulator = false,
         EnableTimeouts = true,
         ConnectionTimeout = 30000,
-        EnablePacketMerging = false
+        EnablePacketMerging = false,
+        MaxMergeMessageSize=10,
+        MaxBufferSize=100
+      
     };
     private RuffleSocket serverSocket;
     private Dictionary<ushort, Action<byte[]>> handlerDictionary;
@@ -40,6 +44,7 @@ public class RufflesServer : IServerProtocol
         handlerDictionary = new Dictionary<ushort, Action<byte[]>>();
         clients = new Dictionary<Connection, Ruffles.Connections.Connection>();
        
+
     }
     public void AddHandler(ushort type, MessageDelegate handler)
     {
@@ -86,7 +91,7 @@ public class RufflesServer : IServerProtocol
 
     public void SendEndToAll()
     {
-        
+
     }
 
     public void SendTo(ushort type, int ID, byte[] message, bool reliable = true)
@@ -96,18 +101,19 @@ public class RufflesServer : IServerProtocol
 
     public void SendTo(ushort type, byte[] message, Connection conn, bool reliable = true)
     {
-        
+
         List<byte> data = new List<byte>();
         data.AddRange(BitConverter.GetBytes(type));
         if (message != null)
         {
             data.AddRange(message);
         }
+    
         byte channel = reliable ? (byte)ChannelType.ReliableSequenced : (byte)ChannelType.UnreliableOrdered;
-        if (clients.TryGetValue(conn,out Ruffles.Connections.Connection value))
+        if (clients.TryGetValue(conn, out Ruffles.Connections.Connection value))
         {
-            value.Send(new ArraySegment<byte>(data.ToArray()), channel, true, (ulong) messageCounter);
-            Debug.Log("Mandado mensaje " +type+" "+ data.Count);
+            value.Send(new ArraySegment<byte>(data.ToArray()), channel, true, (ulong)messageCounter);
+            Debug.Log("Mandado mensaje " + type + " " + data.Count);
         }
         Interlocked.Increment(ref messageCounter);
     }
@@ -120,6 +126,7 @@ public class RufflesServer : IServerProtocol
         {
             data.AddRange(message);
         }
+  
         byte channel = reliable ? (byte)ChannelType.ReliableSequenced : (byte)ChannelType.UnreliableOrdered;
 
         foreach (Ruffles.Connections.Connection conn in clients.Values)
@@ -139,14 +146,14 @@ public class RufflesServer : IServerProtocol
                 case NetworkEventType.Nothing:
                     break;
                 case NetworkEventType.Connect:
-                    clients.Add(new Connection(serverEvent.EndPoint, true),serverEvent.Connection);
+                    clients.Add(new Connection(serverEvent.EndPoint, true), serverEvent.Connection);
                     onClientConnected?.Invoke(new ConnectionInfo(serverEvent.EndPoint.Address.ToString(), serverEvent.EndPoint.Port, serverEvent.EndPoint.Port));
                     break;
                 case NetworkEventType.Disconnect:
                     clients.Remove(new Connection(serverEvent.EndPoint, true));
                     break;
                 case NetworkEventType.Timeout:
-                    onDisconnectedDelegate?.Invoke(new ConnectionInfo(serverEvent.EndPoint.Address.ToString(),serverEvent.EndPoint.Port,serverEvent.EndPoint.Port));
+                    onDisconnectedDelegate?.Invoke(new ConnectionInfo(serverEvent.EndPoint.Address.ToString(), serverEvent.EndPoint.Port, serverEvent.EndPoint.Port));
                     clients.Remove(new Connection(serverEvent.EndPoint, true));
                     break;
                 case NetworkEventType.Data:
