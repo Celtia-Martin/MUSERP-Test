@@ -58,13 +58,7 @@ public class RufflesServer : IServerProtocol
             {
                 handler?.Invoke(new MessageObject(type, 0, 0, false, false, false, false, data), null);
             }
-            else
-            {
-                List<byte> aux = new List<byte>();
-                aux.AddRange(Array.FindAll(data, (a) => a != 0));
-                handler?.Invoke(new MessageObject(type, 0, 0, false, false, false, false, aux.ToArray()), null);
-            }
-
+       
         });
     }
 
