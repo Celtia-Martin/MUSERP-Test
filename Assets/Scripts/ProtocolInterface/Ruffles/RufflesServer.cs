@@ -26,8 +26,9 @@ public class RufflesServer : IServerProtocol
         EnableTimeouts = true,
         ConnectionTimeout = 30000,
         EnablePacketMerging = false,
-        MaxBufferSize=100
-      
+     
+        
+
     };
     private RuffleSocket serverSocket;
     private Dictionary<ushort, Action<byte[]>> handlerDictionary;
@@ -57,6 +58,13 @@ public class RufflesServer : IServerProtocol
             {
                 handler?.Invoke(new MessageObject(type, 0, 0, false, false, false, false, data), null);
             }
+            else
+            {
+                List<byte> aux = new List<byte>();
+                aux.AddRange(Array.FindAll(data, (a) => a != 0));
+                handler?.Invoke(new MessageObject(type, 0, 0, false, false, false, false, aux.ToArray()), null);
+            }
+
         });
     }
 

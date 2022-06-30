@@ -20,16 +20,17 @@ public class RufflesClient : IClientProtocol
         UseSimulator = false,
         ChannelTypes = new ChannelType[]
            {
-                ChannelType.Reliable,
-                ChannelType.ReliableSequenced,
-                ChannelType.Unreliable,
-                ChannelType.UnreliableOrdered,
-                ChannelType.ReliableSequencedFragmented
+               ChannelType.Reliable,
+               ChannelType.ReliableSequenced,
+               ChannelType.Unreliable,
+               ChannelType.UnreliableOrdered,
+               ChannelType.ReliableSequencedFragmented
            },
         EnableTimeouts = true,
         ConnectionTimeout = 30000,
-        EnablePacketMerging= false,
-        MaxBufferSize = 100
+        EnablePacketMerging = false,
+
+
     };
 
     private RuffleSocket clientSocket;
@@ -60,6 +61,12 @@ public class RufflesClient : IClientProtocol
             if (data.Length < MessageObject.maxBytesData)
             {
                 handler?.Invoke(new MessageObject(type, 0, 0, false, false, false, false, data), null);
+            }
+            else
+            {
+                List<byte> aux = new List<byte>();
+                aux.AddRange(Array.FindAll(data,(a) => a != 0));
+                handler?.Invoke(new MessageObject(type, 0, 0, false, false, false, false, aux.ToArray()), null);
             }
         });
     }
