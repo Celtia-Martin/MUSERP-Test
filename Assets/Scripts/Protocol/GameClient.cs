@@ -250,10 +250,6 @@ public class GameClient : MonoBehaviour
             Debug.Log("shot de " + ID);
 
         }
-        else
-        {
-            Debug.Log("kapasao ");
-        }
     }
 
     private void OnPointsJob(MessageObject message, Connection source)
@@ -261,7 +257,7 @@ public class GameClient : MonoBehaviour
         int points = GameSerializer.getPointsFromBytes(message.getData(), out int ID);
         if(players.TryGetValue(ID,out Character value))
         {
-            value.SetPoints(points);
+            value.AddPoints(points);
         }
     }
     private void OnDisappearJob(MessageObject message, Connection source)

@@ -134,7 +134,10 @@ public class Character : MonoBehaviour
     {
         this.points += points;
         pointText.text = this.points.ToString();
-        GameServer.instance?.SendPoints(this.points, ID);
+        if (isServer)
+        {
+            GameServer.instance?.SendPoints(points, ID);
+        }
     }
     public int getPoints()
     {
