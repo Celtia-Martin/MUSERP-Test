@@ -90,7 +90,10 @@ public class UDPClient : IClientProtocol
     {
         List<byte> listBytes = new List<byte>();
         listBytes.AddRange(BitConverter.GetBytes(type));
-        listBytes.AddRange(message);
+        if (message != null)
+        {
+            listBytes.AddRange(message);
+        }
         clientSocket.SendTo(listBytes.ToArray(), serverEndPoint);
     }
 

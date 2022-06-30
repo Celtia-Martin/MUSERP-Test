@@ -84,7 +84,11 @@ public class UDPServer : IServerProtocol
     {
         List<byte> listBytes = new List<byte>();
         listBytes.AddRange(BitConverter.GetBytes(type));
-        listBytes.AddRange(message);
+        if (message != null)
+        {
+            listBytes.AddRange(message);
+        }
+
         if (clients.ContainsKey(conn))
         {
             serverSocket.SendTo(listBytes.ToArray(), clients[conn]);
@@ -95,8 +99,11 @@ public class UDPServer : IServerProtocol
     {
         List<byte> listBytes = new List<byte>();
         listBytes.AddRange(BitConverter.GetBytes(type));
-        listBytes.AddRange(message);
-        foreach( EndPoint endpoint in clients.Values)
+        if (message != null)
+        {
+            listBytes.AddRange(message);
+        }
+        foreach ( EndPoint endpoint in clients.Values)
         {
             serverSocket.SendTo(listBytes.ToArray(), endpoint);
         }
