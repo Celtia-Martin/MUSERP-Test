@@ -99,7 +99,10 @@ public class RufflesServer : IServerProtocol
         
         List<byte> data = new List<byte>();
         data.AddRange(BitConverter.GetBytes(type));
-        data.AddRange(message);
+        if (message != null)
+        {
+            data.AddRange(message);
+        }
         byte channel = reliable ? (byte)ChannelType.ReliableSequenced : (byte)ChannelType.UnreliableOrdered;
         if (clients.TryGetValue(conn,out Ruffles.Connections.Connection value))
         {
@@ -113,7 +116,10 @@ public class RufflesServer : IServerProtocol
     {
         List<byte> data = new List<byte>();
         data.AddRange(BitConverter.GetBytes(type));
-        data.AddRange(message);
+        if (message != null)
+        {
+            data.AddRange(message);
+        }
         byte channel = reliable ? (byte)ChannelType.ReliableSequenced : (byte)ChannelType.UnreliableOrdered;
 
         foreach (Ruffles.Connections.Connection conn in clients.Values)

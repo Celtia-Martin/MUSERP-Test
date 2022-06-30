@@ -109,7 +109,10 @@ public class RufflesClient : IClientProtocol
         List<byte> data = new List<byte>();
         Debug.Log("Sending some with " + message.Length + " bytes");
         data.AddRange(BitConverter.GetBytes(type));
-        data.AddRange(message);
+        if (message != null)
+        {
+            data.AddRange(message);
+        }
         byte channel = reliable ? (byte)ChannelType.ReliableSequenced : (byte)ChannelType.UnreliableOrdered;
         serverConnection.Send(new ArraySegment<byte>(data.ToArray()), channel, true, (ulong)messageCounter);
         Interlocked.Increment(ref messageCounter);
