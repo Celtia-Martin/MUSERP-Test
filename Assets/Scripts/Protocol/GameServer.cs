@@ -193,8 +193,7 @@ public class GameServer : MonoBehaviour
         {
             return;
         }
-        Console.instance.WriteLine("OnClientDisconnected");
-        Console.instance.WriteLine("Cliente desconectado" + playerID);
+        Console.instance.WriteLine("Cliente desconnected" + playerID);
 
         Character deleted = players[playerID];
         if (deleted == null) return;
@@ -219,7 +218,7 @@ public class GameServer : MonoBehaviour
     {
         int currentID = contClientID;
         contClientID++;
-        Console.instance.WriteLine("Cliente " + currentID + " conectado");
+        Console.instance.WriteLine("Client " + currentID + " connected");
         Character newCharacter = PoolManager.singleton.getFromPool("Character").GetComponent<Character>();
         newCharacter.CharacterCreated(currentID, false, true);
         Connection reliableConnection = new Connection(clientInfo.IP, clientInfo.reliablePort, true);
@@ -232,7 +231,6 @@ public class GameServer : MonoBehaviour
 
         foreach (Character chara in characters)
         {
-            Console.instance.WriteLine("Mandando character " + chara.getID());
             charaInfo = GameSerializer.newCharacterToBytes(chara.color, chara.getID());
 
            serverProtocol.SendTo(4, charaInfo, reliableConnection, true);

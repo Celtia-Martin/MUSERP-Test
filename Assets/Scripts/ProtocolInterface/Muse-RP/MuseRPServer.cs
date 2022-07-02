@@ -64,11 +64,11 @@ public class MuseRPServer : IServerProtocol
     }
     public void OnStart()
     {
-        Console.instance.WriteLine("Comenzando server...");
+        Console.instance.WriteLine("Starting server...");
         options = new HostOptions(maxConnections, timeOut, timePing, 1, reliablePort, noReliablePort, 1000, 200, reliablePercentage, customHandler);
         server = new Server(options, true);
         server.Start();
-        Console.instance.WriteLine("Server comenzado");
+        Console.instance.WriteLine("Server started");
         server.AddPingHandler((m,s) => Debug.Log("Ping!"));
         server.onEndReceived += () => Debug.Log("End recibido");
         server.onSendEnd += () => Debug.Log("He enviado un end");

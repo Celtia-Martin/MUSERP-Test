@@ -87,7 +87,7 @@ public class GameClient : MonoBehaviour
         clientProtocol.AddHandler(11, OnStartGame);
         clientProtocol.AddHandler(12, OnEndGame);
 
-        clientProtocol.AddOnConnectionFailedHandler(() => jobs.Enqueue(() => Console.instance.WriteLine("Imposible conectar con el servidor")));
+        clientProtocol.AddOnConnectionFailedHandler(() => jobs.Enqueue(() => Console.instance.WriteLine("Impossible connect to server")));
     }
     public void AddConnectionFailureHandler(Action handler)
     {
@@ -182,7 +182,7 @@ public class GameClient : MonoBehaviour
     #region Jobs
     private void OnServerDisconnectedJob()
     {
-        Console.instance.WriteLine("Desconectado del servidor");
+        Console.instance.WriteLine("Disconnected");
         //Remove all handlers????
         clientProtocol.RemoveHandler(4);
         clientProtocol.RemoveHandler(66);
@@ -198,7 +198,7 @@ public class GameClient : MonoBehaviour
     private void NewCharacterJob(MessageObject message, Connection source)
     {
         Color color = GameSerializer.getCharacterFromBytes(message.getData(), out int id);
-        Console.instance.WriteLine("Nuevo cliente " + id);
+        Console.instance.WriteLine("New client " + id);
         if (id == myID) return;
         Character newChara = PoolManager.singleton.getFromPool("Character").GetComponent<Character>();
         newChara.CharacterCreated(id, false, false);
@@ -210,7 +210,7 @@ public class GameClient : MonoBehaviour
        
         Color color = GameSerializer.getCharacterFromBytes(message.getData(), out int id);
      
-        Console.instance.WriteLine("Mi cliente es el  " + id);
+        Console.instance.WriteLine("My ID: " + id);
         mine = PoolManager.singleton.getFromPool("Character").GetComponent<Character>();
         mine.CharacterCreated(id, true, false);
         mine.SetColor(color);
@@ -224,7 +224,7 @@ public class GameClient : MonoBehaviour
     private void EndCharacterJob(MessageObject message, Connection source)
     {
         int id = BitConverter.ToInt32(message.getData(), 0);
-        Console.instance.WriteLine("Cliente " + id + " se ha ido");
+        Console.instance.WriteLine("Client " + id + " is gone");
         if (players.TryGetValue(id, out Character chara))
         {
             PoolManager.singleton.addToPool("Character", chara.gameObject);

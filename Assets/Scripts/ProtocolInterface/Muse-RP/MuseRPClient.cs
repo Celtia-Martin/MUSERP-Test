@@ -82,7 +82,7 @@ public class MuseRPClient : IClientProtocol
         client.AddOnConnectedHandler(onConnected);
         client.Start();
         client.TryConnect();
-        Console.instance.WriteLine("Intentando conectar...");
+        Console.instance.WriteLine("Trying to connect...");
     }
 
     public void TryConnect()
