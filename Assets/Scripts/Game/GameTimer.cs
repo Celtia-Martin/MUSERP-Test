@@ -14,7 +14,7 @@ public class GameTimer
 
     private Text textClock;
 
-    private float initialSeconds = 180f;
+    private float initialSeconds = 10f;
 
     private Queue<Action> jobs;
 

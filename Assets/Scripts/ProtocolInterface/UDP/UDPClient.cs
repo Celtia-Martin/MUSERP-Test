@@ -19,7 +19,7 @@ public class UDPClient : IClientProtocol
     private EndPoint serverEndPoint;
     private int port;
     private Thread listenerThread;
-    //Para gestionar la conexi�n: se usar�n los mensajes 1 como init
+    //Para gestionar la conexi�n: se usar�n los mensajes 0 como init
     public UDPClient(EndPoint serverEndPoint, int port)
     {
         this.port = port;

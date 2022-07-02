@@ -99,7 +99,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletSpeed: 20
   lifeTime: 2
-  pointsPlayer: 10
+  pointsPlayer: 35
 --- !u!61 &-9082607104168178319
 BoxCollider2D:
   m_ObjectHideFlags: 0

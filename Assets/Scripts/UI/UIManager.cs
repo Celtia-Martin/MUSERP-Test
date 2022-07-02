@@ -49,12 +49,14 @@ public class UIManager : MonoBehaviour
         instance.prevGameServer.SetActive(false);
         instance.prevGameClient.SetActive(false);
         GameTimer.StartTimer(instance.textClock);
+        Cursor.visible = false;
 
     }
     public static void OnEndGame(string results)
     {
         instance.resultsScreen.SetActive(true);
         instance.resultsText.text = results;
+        Cursor.visible = true;
 
     }
     private void Awake()

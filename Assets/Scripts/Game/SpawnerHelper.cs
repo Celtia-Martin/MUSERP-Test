@@ -6,9 +6,6 @@ public class SpawnerHelper : MonoBehaviour
 {
     public static SpawnerHelper instance;
 
-    private float maxPosX;
-    private float maxPosY;
-
     private Vector2[] directions = new Vector2[] { new Vector2(0, -1), new Vector2(-1, 0), new Vector2(0, 1), new Vector2(1, 0) }; //North, East, South, West 
 
     private SpawnPoint[] spawnPoints;
@@ -26,8 +23,6 @@ public class SpawnerHelper : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            maxPosX = Camera.main.pixelWidth;
-            maxPosY = Camera.main.pixelHeight;
             spawnPoints = new SpawnPoint[transform.childCount];
             for (int i = 0; i < transform.childCount; i++)
             {

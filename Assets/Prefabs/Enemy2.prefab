@@ -99,8 +99,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: ButterSight
   speed: 2
-  points: 10
+  points: 50
   lifeTime: 10
+  spawnerIndex: 0
 --- !u!61 &3516252479132485204
 BoxCollider2D:
   m_ObjectHideFlags: 0

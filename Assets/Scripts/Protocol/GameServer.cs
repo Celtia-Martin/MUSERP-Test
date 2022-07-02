@@ -56,7 +56,8 @@ public class GameServer : MonoBehaviour
         int i = 0;
         foreach (Character chara in instance.players.Values)
         {
-            results += "Player " + i + " :" + chara.getPoints() + "\n";
+            string color = "<color=#" + ColorUtility.ToHtmlStringRGB(chara.color) + ">";
+            results += color + "Player " + chara.getID() + " :" + chara.getPoints() + "</color>\n";
             i++;
         }
         UIManager.OnEndGame(results);
@@ -97,9 +98,9 @@ public class GameServer : MonoBehaviour
     public void StartServer()
     {
         isServer = true;
-        //serverProtocol = new MuseRPServer(reliablePort, noReliablePort, maxConnections, timeOut, timePing, reliablePercentage);
+        serverProtocol = new MuseRPServer(reliablePort, noReliablePort, maxConnections, timeOut, timePing, reliablePercentage);
         //serverProtocol = new TCPServer(reliablePort,maxConnections);
-        serverProtocol = new RufflesServer(reliablePort);
+        //serverProtocol = new RufflesServer(reliablePort);
         //serverProtocol = new GServerServer(reliablePort,this);
         //serverProtocol = new UDPServer(reliablePort, maxConnections);
         serverProtocol.OnStart();
@@ -256,7 +257,5 @@ public class GameServer : MonoBehaviour
     }
 
     #endregion
-    #region Temporization
-    //TODO
-    #endregion
+ 
 }

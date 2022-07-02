@@ -70,7 +70,6 @@ public class EnemySpawner : MonoBehaviour
     public void RemoveEnemyClient(int id)
     {
         if (enemies.Count < id) { return; }
-        Debug.Log("Lenght " + enemies.Count + " id" + id);
         Enemy enemy = enemies[id];
         enemy.RemoveEnemyClient();
         enemies.RemoveAt(id);
@@ -110,7 +109,6 @@ public class EnemySpawner : MonoBehaviour
     }
     private void OnSpawnJob()
     {
-        Debug.Log("Spawn!");
         ushort type =(ushort)UnityEngine.Random.Range(0, types.Count);
         Enemy currentEnemy = PoolManager.singleton.getFromPool(types[type]).GetComponent<Enemy>();
         enemies.Add(currentEnemy);

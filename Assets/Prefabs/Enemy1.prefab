@@ -99,8 +99,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: EyeHat
   speed: 2
-  points: 50
+  points: 10
   lifeTime: 10
+  spawnerIndex: 0
 --- !u!61 &8007998362515054137
 BoxCollider2D:
   m_ObjectHideFlags: 0

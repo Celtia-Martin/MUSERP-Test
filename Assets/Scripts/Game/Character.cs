@@ -110,7 +110,7 @@ public class Character : MonoBehaviour
     {
         customUpdate += OnCustomUpdate;
         customFixedUpdate += OnCustomFixedUpdate;
-        arrowPivot.SetActive(true);
+        arrowSprite.gameObject.SetActive(true);
     }
     #endregion
     #region Getters and Setters
