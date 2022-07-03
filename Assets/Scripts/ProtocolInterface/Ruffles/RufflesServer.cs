@@ -111,7 +111,7 @@ public class RufflesServer : IServerProtocol
             data.AddRange(message);
         }
     
-        byte channel = reliable ? (byte)ChannelType.ReliableSequenced : (byte)ChannelType.UnreliableOrdered;
+        byte channel = reliable ? (byte)ChannelType.Reliable : (byte)ChannelType.UnreliableOrdered;
         if (clients.TryGetValue(conn, out Ruffles.Connections.Connection value))
         {
             value.Send(new ArraySegment<byte>(data.ToArray()), channel, true, (ulong)messageCounter);
