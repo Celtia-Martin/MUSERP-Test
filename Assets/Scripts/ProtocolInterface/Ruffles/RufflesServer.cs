@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Text;
 using UnityEngine;
+using System.Linq;
 
 public class RufflesServer : IServerProtocol
 {
@@ -161,7 +162,7 @@ public class RufflesServer : IServerProtocol
                     ushort type = BitConverter.ToUInt16(serverEvent.Data.Array, 0);
                     if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
                     {
-                        value?.Invoke(serverEvent.Data.Array);
+                        value?.Invoke(serverEvent.Data.Take(serverEvent.Data.Count).ToArray());
                     }
                     break;
                 case NetworkEventType.UnconnectedData:

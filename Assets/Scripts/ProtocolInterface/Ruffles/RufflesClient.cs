@@ -6,6 +6,7 @@ using Ruffles.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using UnityEngine;
@@ -89,6 +90,7 @@ public class RufflesClient : IClientProtocol
     public void OnStart(OnConnectedDelegate onConnected)
     {
         clientSocket.Start();
+        this.onConnected += onConnected;
         TryConnect();
     }
 
@@ -138,6 +140,7 @@ public class RufflesClient : IClientProtocol
             clientSocket.Connect(serverEndpoint);
             listeningThread = new Thread(() => ListeningThread());
             listeningThread.Start();
+            onConnected?.Invoke();
         }catch(Exception e)
         {
             onConnectionFailure?.Invoke();
@@ -169,7 +172,7 @@ public class RufflesClient : IClientProtocol
                     Debug.Log("Type of message " + type);
                     if (handlerDictionary.TryGetValue(type, out Action<byte[]> value))
                     {
-                        value?.Invoke(clientEvent.Data.Array);
+                        value?.Invoke(clientEvent.Data.Take(clientEvent.Data.Count).ToArray());
                     }
                     break;
                 case NetworkEventType.UnconnectedData:
