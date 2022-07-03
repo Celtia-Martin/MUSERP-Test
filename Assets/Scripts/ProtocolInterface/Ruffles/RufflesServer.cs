@@ -128,8 +128,8 @@ public class RufflesServer : IServerProtocol
         {
             data.AddRange(message);
         }
-  
-        byte channel = reliable ? (byte)ChannelType.ReliableSequenced : (byte)ChannelType.UnreliableOrdered;
+
+        byte channel = reliable ? (byte)ChannelType.Reliable : (byte)ChannelType.UnreliableOrdered;
 
         foreach (Ruffles.Connections.Connection conn in clients.Values)
         {
