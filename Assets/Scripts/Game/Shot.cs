@@ -8,7 +8,7 @@ public class Shot : MonoBehaviour
     private Rigidbody2D myRB;
     private SpriteRenderer mySprite;
     private Character myCharacter;
-
+    private ParticleSystem myParticle;
     //Properties
     [SerializeField]
     private float bulletSpeed;
@@ -24,6 +24,7 @@ public class Shot : MonoBehaviour
     {
         myRB = GetComponent<Rigidbody2D>();
         mySprite = GetComponent<SpriteRenderer>();
+        myParticle = GetComponentInChildren<ParticleSystem>();
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -38,7 +39,7 @@ public class Shot : MonoBehaviour
             //Puntos como enemigo
             int points = collision.gameObject.GetComponent<Enemy>().RemoveEnemyServer();
             myCharacter.AddPoints(points);
-            
+           
             //Mandar desaparicion
             //Mandar puntos
          
@@ -48,6 +49,7 @@ public class Shot : MonoBehaviour
         {
             //Mandar puntos
             collision.gameObject.GetComponent<Character>().AddPoints(-pointsPlayer);
+        
             //Set puntos
         }
         EliminateShot();
@@ -60,10 +62,12 @@ public class Shot : MonoBehaviour
     {
         this.isServer = isServer;
         this.myCharacter = myCharacter;
+        SoundManager.OnSound(SoundManager.FXType.Shot);
         transform.position = position;
         myRB.velocity = bulletSpeed * direction.normalized;
         color.a = 1;
         mySprite.color = color;
+        myParticle.startColor= color;
         StartCoroutine(TimeToLive());
 
 

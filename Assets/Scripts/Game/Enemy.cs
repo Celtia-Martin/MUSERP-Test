@@ -16,30 +16,48 @@ public class Enemy : MonoBehaviour
 
     //References
     private Rigidbody2D myRB;
+    private Animator animator;
 
     //Spawn information
     public int spawnerIndex;
+
+    private bool dead;
 
 
     private void Awake()
     {
         myRB = GetComponent<Rigidbody2D>();
-        
+        animator = GetComponent<Animator>();
     }
 
     public int RemoveEnemyServer()
     {
+        if (dead)
+        {
+            return 0;
+        }
+        dead = true;
         EnemySpawner.instance.RemoveEnemyServer(this);
-        PoolManager.singleton.addToPool(type, gameObject);
+
+        animator.SetBool("Dead", true);
+        StartCoroutine(Dead());
         return points;
 
     }
     public void RemoveEnemyClient()
     {
-        PoolManager.singleton.addToPool(type, gameObject);
+        if (dead)
+        {
+            return;
+        }
+        dead = true;
+        animator.SetBool("Dead", true);
+        StartCoroutine(Dead());
     }
    public void InitEnemy(Vector2 position, Vector2 direction, bool isServer)
     {
+        dead = false;
+        animator.SetBool("Dead", false);
         transform.position = position;
         myRB.velocity = direction.normalized * speed;
         if (isServer) StartCoroutine(TimeToLive());
@@ -49,6 +67,13 @@ public class Enemy : MonoBehaviour
     {
         yield return new WaitForSeconds(lifeTime);
         RemoveEnemyServer();
+    }
+    IEnumerator Dead()
+    {
+     
+        yield return new WaitForSeconds(1);
+        PoolManager.singleton.addToPool(type, gameObject);
+        PoolManager.singleton.addToPool(type, gameObject);
     }
     
 }

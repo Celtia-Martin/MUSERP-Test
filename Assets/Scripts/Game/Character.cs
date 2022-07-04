@@ -42,6 +42,7 @@ public class Character : MonoBehaviour
     private GameObject arrowPivot; //para girarlo
     [SerializeField]
     private Text pointText; // Para tener conteo de sus puntos
+    private Animator myAnimator;
 
     //State
 
@@ -111,6 +112,7 @@ public class Character : MonoBehaviour
         customUpdate += OnCustomUpdate;
         customFixedUpdate += OnCustomFixedUpdate;
         arrowSprite.gameObject.SetActive(true);
+        myAnimator = GetComponent<Animator>();
     }
     #endregion
     #region Getters and Setters
@@ -127,11 +129,22 @@ public class Character : MonoBehaviour
     }
     public void SetPoints(int points)
     {
+      
         this.points = points;
         pointText.text = this.points.ToString();
     }
     public void AddPoints(int points)
     {
+        if (points < 0)
+        {
+            myAnimator.SetBool("Damaged", true);
+            StartCoroutine(HitState());
+            SoundManager.OnSound(SoundManager.FXType.CharacterHit);
+        }
+        else
+        {
+            SoundManager.OnSound(SoundManager.FXType.EnemyDead);
+        }
         this.points += points;
         pointText.text = this.points.ToString();
         if (isServer)
@@ -263,6 +276,11 @@ public class Character : MonoBehaviour
             }
             moved = false;
         }
+    }
+    IEnumerator HitState()
+    {
+        yield return new WaitForSeconds(0.5f);
+        myAnimator.SetBool("Damaged", false);
     }
 
     #endregion
