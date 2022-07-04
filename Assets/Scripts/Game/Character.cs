@@ -112,7 +112,7 @@ public class Character : MonoBehaviour
         customUpdate += OnCustomUpdate;
         customFixedUpdate += OnCustomFixedUpdate;
         arrowSprite.gameObject.SetActive(true);
-        myAnimator = GetComponent<Animator>();
+      
     }
     #endregion
     #region Getters and Setters
@@ -171,6 +171,7 @@ public class Character : MonoBehaviour
     private void Awake()
     {
         position = transform.position;
+        myAnimator = GetComponent<Animator>();
     }
     private void Update()
     {
