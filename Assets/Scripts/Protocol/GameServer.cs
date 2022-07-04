@@ -145,6 +145,10 @@ public class GameServer : MonoBehaviour
     {
         serverProtocol?.OnAppQuit();
     }
+    private void OnDestroy()
+    {
+        serverProtocol?.OnAppQuit();
+    }
     private void ServerIniciado()
     {
         InitMyCharacter();

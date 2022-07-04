@@ -130,6 +130,10 @@ public class GameClient : MonoBehaviour
     {
         clientProtocol?.OnAppQuit();
     }
+    private void OnDestroy()
+    {
+        clientProtocol?.OnAppQuit();
+    }
     private void OnPointsReceive(MessageObject message, Connection source)
     {
         jobs.Enqueue(() => OnPointsJob(message, source));

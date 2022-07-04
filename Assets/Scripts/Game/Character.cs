@@ -43,6 +43,7 @@ public class Character : MonoBehaviour
     [SerializeField]
     private Text pointText; // Para tener conteo de sus puntos
     private Animator myAnimator;
+    private ParticleSystem hitParticles;
 
     //State
 
@@ -140,6 +141,7 @@ public class Character : MonoBehaviour
             myAnimator.SetBool("Damaged", true);
             StartCoroutine(HitState());
             SoundManager.OnSound(SoundManager.FXType.CharacterHit);
+            hitParticles.Play();
         }
         else
         {

@@ -61,6 +61,7 @@ public class MuseRPServer : IServerProtocol
     public void OnAppQuit()
     {
         server.SendEndToAll();
+        server.Stop();
     }
     public void OnStart()
     {
