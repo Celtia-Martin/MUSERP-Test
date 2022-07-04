@@ -532,26 +532,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: HitParticle
       objectReference: {fileID: 0}
-    - target: {fileID: 7945088156617660383, guid: 67e2d176eceebfc40a568f135d60b7a1, type: 3}
-      propertyPath: ShapeModule.radius.value
-      value: 0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 7945088156617660383, guid: 67e2d176eceebfc40a568f135d60b7a1, type: 3}
-      propertyPath: ShapeModule.radiusThickness
-      value: 0.18
-      objectReference: {fileID: 0}
-    - target: {fileID: 7945088156617660383, guid: 67e2d176eceebfc40a568f135d60b7a1, type: 3}
-      propertyPath: InitialModule.startSize.scalar
-      value: 0.4
-      objectReference: {fileID: 0}
-    - target: {fileID: 7945088156617660383, guid: 67e2d176eceebfc40a568f135d60b7a1, type: 3}
-      propertyPath: InitialModule.startSpeed.scalar
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 7945088156617660383, guid: 67e2d176eceebfc40a568f135d60b7a1, type: 3}
-      propertyPath: InitialModule.startSize.minScalar
-      value: 0.2
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 67e2d176eceebfc40a568f135d60b7a1, type: 3}
 --- !u!4 &6188736093826260070 stripped

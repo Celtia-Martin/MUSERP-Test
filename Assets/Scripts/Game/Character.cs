@@ -174,6 +174,7 @@ public class Character : MonoBehaviour
     {
         position = transform.position;
         myAnimator = GetComponent<Animator>();
+        hitParticles = GetComponentInChildren<ParticleSystem>();
     }
     private void Update()
     {
