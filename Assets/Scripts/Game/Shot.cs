@@ -8,7 +8,7 @@ public class Shot : MonoBehaviour
     private Rigidbody2D myRB;
     private SpriteRenderer mySprite;
     private Character myCharacter;
-    private ParticleSystem myParticle;
+
     //Properties
     [SerializeField]
     private float bulletSpeed;
@@ -24,7 +24,6 @@ public class Shot : MonoBehaviour
     {
         myRB = GetComponent<Rigidbody2D>();
         mySprite = GetComponent<SpriteRenderer>();
-        myParticle = GetComponentInChildren<ParticleSystem>();
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -67,7 +66,6 @@ public class Shot : MonoBehaviour
         myRB.velocity = bulletSpeed * direction.normalized;
         color.a = 1;
         mySprite.color = color;
-        myParticle.startColor= color;
         StartCoroutine(TimeToLive());
 
 

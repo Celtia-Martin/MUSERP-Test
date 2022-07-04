@@ -22,6 +22,8 @@ public class Enemy : MonoBehaviour
     public int spawnerIndex;
 
     private bool dead;
+    private bool inmune = true;
+    private float inmuneTime = 0.35f;
 
 
     private void Awake()
@@ -32,7 +34,7 @@ public class Enemy : MonoBehaviour
 
     public int RemoveEnemyServer()
     {
-        if (dead)
+        if (dead||inmune)
         {
             return 0;
         }
@@ -46,7 +48,7 @@ public class Enemy : MonoBehaviour
     }
     public void RemoveEnemyClient()
     {
-        if (dead)
+        if (dead )
         {
             return;
         }
@@ -56,15 +58,21 @@ public class Enemy : MonoBehaviour
     }
    public void InitEnemy(Vector2 position, Vector2 direction, bool isServer)
     {
+        inmune = true;
         dead = false;
         animator.SetBool("Dead", false);
         transform.position = position;
         myRB.velocity = direction.normalized * speed;
-        if (isServer) StartCoroutine(TimeToLive());
+        if (isServer)
+            StartCoroutine(TimeToLive());
+        else
+            inmune = false;
     }
     public string getType() { return type; }
     private IEnumerator TimeToLive()
     {
+        yield return new WaitForSeconds( inmuneTime);
+        inmune = false;
         yield return new WaitForSeconds(lifeTime);
         RemoveEnemyServer();
     }
