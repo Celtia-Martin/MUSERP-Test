@@ -48,7 +48,7 @@ public class GameServer : MonoBehaviour
     #region Unity Events
     public static void OnGameEnd()
     {
-        if (instance == null || !instance.isServer)
+        if (instance==null || !instance.isServer)
         {
             return;
         }
@@ -100,7 +100,7 @@ public class GameServer : MonoBehaviour
         isServer = true;
         serverProtocol = new MuseRPServer(reliablePort, noReliablePort, maxConnections, timeOut, timePing, reliablePercentage);
         //serverProtocol = new TCPServer(reliablePort,maxConnections);
-        // serverProtocol = new RufflesServer(reliablePort);
+       // serverProtocol = new RufflesServer(reliablePort);
         //serverProtocol = new GServerServer(reliablePort,this);
         //serverProtocol = new UDPServer(reliablePort, maxConnections);
         serverProtocol.OnStart();
@@ -120,16 +120,7 @@ public class GameServer : MonoBehaviour
     #region Event Handlers
     private void OnPositionReceive(MessageObject message, Connection source)
     {
-        (Vector2 position, float timeStamp) = GameSerializer.getPositionTimeStampFromBytes(message.getData(), out int id);
-        if (timeStamp - Character.timeStamp <= Character.limitTimeStamp)
-        {
-            jobs.Enqueue(() => OnPositionChangeJob(message, source));
-        }
-        else
-        {
-            Debug.LogError("Timestamp exceeded");
-        }
-
+        jobs.Enqueue(() => OnPositionChangeJob(message, source));
     }
     private void OnShotReceived(MessageObject message, Connection source)
     {
@@ -174,7 +165,7 @@ public class GameServer : MonoBehaviour
     #region Senders
     public void SendPositionServer(Vector2 position, int ID)
     {
-        serverProtocol.SendToAll(5, GameSerializer.positionInfoToBytesWithTimeStamp(position, ID), false);
+        serverProtocol.SendToAll(5, GameSerializer.positionInfoToBytes(position, ID), false);
     }
     public void SendShot(Vector2 position, int ID)
     {
@@ -246,8 +237,8 @@ public class GameServer : MonoBehaviour
         {
             charaInfo = GameSerializer.newCharacterToBytes(chara.color, chara.getID());
 
-            serverProtocol.SendTo(4, charaInfo, reliableConnection, true);
-            serverProtocol.SendTo(8, GameSerializer.pointsToBytes(chara.getID(), chara.getPoints()), reliableConnection, true);
+           serverProtocol.SendTo(4, charaInfo, reliableConnection, true);
+           serverProtocol.SendTo(8, GameSerializer.pointsToBytes(chara.getID(), chara.getPoints()), reliableConnection, true);
 
         }
         EnemySpawner.instance.SendAllCurrentEnemies(reliableConnection);
@@ -268,5 +259,5 @@ public class GameServer : MonoBehaviour
     }
 
     #endregion
-
+ 
 }
