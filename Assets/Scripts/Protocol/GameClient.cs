@@ -150,13 +150,13 @@ public class GameClient : MonoBehaviour
     public void OnPositionMessage(MessageObject message, Connection source)
     {
         (Vector2 position, float timeStamp) = GameSerializer.getPositionTimeStampFromBytes(message.getData(), out int id);
-        if (timeStamp - Character.timeStamp <= Character.limitTimeStamp)
+        if ( Character.timeStamp- timeStamp <= Character.limitTimeStamp)
         {
             jobs.Enqueue(() => OnPositionMessageJob(message, source));
         }
         else
         {
-            Debug.LogError("MS exceeded");
+            Debug.LogError("MS exceeded: "+ timeStamp +" "+ Character.timeStamp);
         }
 
     }

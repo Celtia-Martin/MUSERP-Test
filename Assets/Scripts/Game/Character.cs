@@ -204,18 +204,26 @@ public class Character : MonoBehaviour
             position = transform.position;
             if (moved)
             {
-                if (isServer)
-                {
-                    GameServer.instance.SendPositionServer(position, ID);
-                }
-                else
-                {
+              
                     GameClient.instance.SendPositionToServer(position);
-                }
+
             
             }
             moved = false;
-        }  
+        }
+        else
+        {
+            moved = Mathf.Abs(Vector2.Distance(position, transform.position)) > Mathf.Epsilon;
+            position = transform.position;
+            if (moved)
+            {
+
+                GameServer.instance.SendPositionServer(position, ID);
+
+            }
+            moved = false;
+         
+        }
         GetInputShot();
 
     }
