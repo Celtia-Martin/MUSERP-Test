@@ -17,6 +17,17 @@ public static class GameSerializer
         return buffer.ToArray();
     }
 
+    public static byte[] positionInfoToBytesWithTimeStamp(Vector2 position, int id)
+    {
+        List<byte> buffer = new List<byte>();
+        buffer.AddRange(BitConverter.GetBytes(id));
+        buffer.AddRange(BitConverter.GetBytes(position.x));
+        buffer.AddRange(BitConverter.GetBytes(position.y));
+        buffer.AddRange(BitConverter.GetBytes(Character.timeStamp));
+        return buffer.ToArray();
+    }
+
+
     public static byte[] newCharacterToBytes(Color color, int id)
     {
         List<byte> buffer = new List<byte>();
@@ -81,7 +92,22 @@ public static class GameSerializer
 
         return position;
     }
+    public static (Vector2, int) getPositionTimeStampFromBytes(byte[] data, out int ID)
+    {
+        if (data.Length < 16)
+        {
+            ID = -1;
+            return (Vector2.zero, 0);
+            //  throw new IncorrectMessageFormatException();
+        }
 
+        ID = BitConverter.ToInt32(data, 0);
+        Vector2 position = new Vector2();
+        position.x = BitConverter.ToSingle(data, 4);
+        position.y = BitConverter.ToSingle(data, 8);
+        int timeStamp = BitConverter.ToInt32(data, 12);
+        return (position, timeStamp);
+    }
     public static int getPointsFromBytes(byte[] data, out int ID)
     {
         if (data.Length < 8)

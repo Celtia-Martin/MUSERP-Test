@@ -107,7 +107,8 @@ public class GameClient : MonoBehaviour
     #region Senders
     public void SendPositionToServer(Vector2 position)
     {
-        clientProtocol.SendToServer(5, GameSerializer.positionInfoToBytes(position, myID), false);
+        //clientProtocol.SendToServer(5, GameSerializer.positionInfoToBytes(position, myID), false);
+        clientProtocol.SendToServer(5, GameSerializer.positionInfoToBytesWithTimeStamp(position, myID), false);
 
     }
     public void SendShotServer(Vector2 position, int ID)
@@ -148,7 +149,15 @@ public class GameClient : MonoBehaviour
     }
     public void OnPositionMessage(MessageObject message, Connection source)
     {
-        jobs.Enqueue(() => OnPositionMessageJob(message, source));
+        (Vector2 position, float timeStamp) = GameSerializer.getPositionTimeStampFromBytes(message.getData(), out int id);
+        if (timeStamp - Character.timeStamp <= Character.limitTimeStamp)
+        {
+            jobs.Enqueue(() => OnPositionMessageJob(message, source));
+        }
+        else
+        {
+            Debug.LogError("MS exceeded");
+        }
 
     }
     public void OnEndClientReceived(MessageObject message, Connection source)

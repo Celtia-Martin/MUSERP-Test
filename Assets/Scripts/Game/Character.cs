@@ -48,12 +48,16 @@ public class Character : MonoBehaviour
     //State
 
     private Vector2 position;
+  
     private bool moved = false;
     private bool canShot = true;
 
     //Reference
 
     public static Character myCharacter;
+    public static int timeStamp;
+    public static int limitTimeStamp = 100;
+
    
     #region Public Methods
 
@@ -77,7 +81,7 @@ public class Character : MonoBehaviour
                 //sendingPosition.Elapsed += ((e, t) => SendingPosition());
                 //sendingPosition.AutoReset = true;
                 //sendingPosition.Start();
-                StartCoroutine(SendingPositionClientCoroutine());
+               // StartCoroutine(SendingPositionClientCoroutine());
             }
             else
             {
@@ -113,6 +117,7 @@ public class Character : MonoBehaviour
         customUpdate += OnCustomUpdate;
         customFixedUpdate += OnCustomFixedUpdate;
         arrowSprite.gameObject.SetActive(true);
+        timeStamp = 0;
       
     }
     #endregion
@@ -190,8 +195,20 @@ public class Character : MonoBehaviour
     {
         //Server autoritativo: mandar input y el ya hace el resto
         //Mover el cursor
+        timeStamp += (int)(Time.deltaTime*1000f);
+        Debug.LogWarning("Timestamp: " + timeStamp);
         transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
-      
+        if (!isServer)
+        {
+            moved = Mathf.Abs(Vector2.Distance(position, transform.position)) > Mathf.Epsilon;
+            position = transform.position;
+            if (moved)
+            {
+                GameServer.instance.SendPositionServer(position, ID);
+                Debug.Log("Enviado");
+            }
+            moved = false;
+        }  
         GetInputShot();
 
     }
