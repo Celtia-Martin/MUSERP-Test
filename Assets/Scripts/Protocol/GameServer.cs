@@ -102,7 +102,7 @@ public class GameServer : MonoBehaviour
         //serverProtocol = new TCPServer(reliablePort,maxConnections);
         // serverProtocol = new RufflesServer(reliablePort);
         //serverProtocol = new GServerServer(reliablePort,this);
-       //serverProtocol = new UDPServer(reliablePort, maxConnections);
+       // serverProtocol = new UDPServer(reliablePort, maxConnections);
         serverProtocol.OnStart();
         ServerIniciado();
     }
@@ -124,20 +124,14 @@ public class GameServer : MonoBehaviour
         if ( DateTime.UtcNow.Millisecond- timeStamp <= Character.limitTimeStamp)
         {
             jobs.Enqueue(() => OnPositionChangeJob(message, source));
-            TimeSpan timeSpan = new TimeSpan(DateTime.UtcNow.Ticks);
-            TimeSpan difference = timeSpan.Subtract(new TimeSpan(timeStamp));
-            UIManager.debugTimeStamp =  (int)(difference.TotalMilliseconds);
-            Debug.LogError("Latency " + difference.TotalMilliseconds);
-
+            UIManager.debugTimeStamp = DateTime.UtcNow.Ticks - timeStamp;
+            
         }
         else
         {
-            TimeSpan timeSpan = new TimeSpan(DateTime.UtcNow.Ticks);
-            TimeSpan difference =timeSpan.Subtract(new TimeSpan(timeStamp));
-            UIManager.debugTimeStamp = (int)(difference.TotalMilliseconds);
-            Debug.LogError("Latency " + difference.TotalMilliseconds);
+            Debug.LogError("Timestamp exceeded");
+            UIManager.debugTimeStamp = DateTime.UtcNow.Ticks - timeStamp;
         }
-  
 
     }
     private void OnShotReceived(MessageObject message, Connection source)
