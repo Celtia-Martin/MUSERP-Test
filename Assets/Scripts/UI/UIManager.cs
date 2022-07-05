@@ -44,6 +44,9 @@ public class UIManager : MonoBehaviour
 
     public static UIManager instance;
 
+    public  static int debugTimeStamp;
+    [SerializeField]
+    private Text debugText;
     public static void StartGame()
     {
         instance.prevGameServer.SetActive(false);
@@ -83,8 +86,16 @@ public class UIManager : MonoBehaviour
     private void Update()
     {
         GameTimer.instance?.OnUpdate();
+        debugText.text = ""+debugTimeStamp;
     }
-
+    private void OnDestroy()
+    {
+        GameTimer.Stop();
+    }
+    private void OnApplicationQuit()
+    {
+        GameTimer.Stop();
+    }
     #region Button Actions
     private void OnCreateServer()
     {

@@ -34,6 +34,14 @@ public class GameTimer
         instance = new GameTimer(textClock);
 
     }
+    public static void Stop()
+    {
+        if(instance!=null && instance.timeCountDown != null)
+        {
+            instance.timeCountDown.Stop();
+            instance.timeCountDown.Dispose();
+        }
+    }
 
     private void OnSecond()
     {

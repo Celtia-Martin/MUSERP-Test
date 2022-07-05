@@ -32,6 +32,8 @@ public class GameClient : MonoBehaviour
     [SerializeField]
     protected string serverIP;
 
+   
+
     #region Unity Events
     private void Awake()
     {
@@ -149,14 +151,17 @@ public class GameClient : MonoBehaviour
     }
     public void OnPositionMessage(MessageObject message, Connection source)
     {
-        (Vector2 position, float timeStamp) = GameSerializer.getPositionTimeStampFromBytes(message.getData(), out int id);
+        (Vector2 position, int timeStamp) = GameSerializer.getPositionTimeStampFromBytes(message.getData(), out int id);
         if ( Character.timeStamp- timeStamp <= Character.limitTimeStamp)
         {
             jobs.Enqueue(() => OnPositionMessageJob(message, source));
+            Debug.LogError("Timestamp : " + timeStamp + " " + Character.timeStamp);
+            UIManager.debugTimeStamp = Character.timeStamp - timeStamp;
         }
         else
         {
-            Debug.LogError("MS exceeded: "+ timeStamp +" "+ Character.timeStamp);
+            Debug.LogError("Timestamp exceeded: "+ timeStamp +" "+ Character.timeStamp);
+            UIManager.debugTimeStamp = Character.timeStamp - timeStamp;
         }
 
     }
