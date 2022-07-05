@@ -72,7 +72,7 @@ public class Character : MonoBehaviour
         cursor.color = color;
         arrowSprite.color = color;
         pointText.color = color;
-        sendingPosition = new Timer(35);
+        sendingPosition = new Timer(20);
         sendingPosition.AutoReset = true;
         if (isMine)
         {
