@@ -89,7 +89,7 @@ public class Character : MonoBehaviour
                 //sendingPosition.Elapsed += ((e, t) => SendingPositionServer());
                 //sendingPosition.AutoReset = true;
                 //sendingPosition.Start();
-               // StartCoroutine(SendingPositionServerCoroutine());
+                StartCoroutine(SendingPositionServerCoroutine());
 
             }
 
@@ -204,15 +204,8 @@ public class Character : MonoBehaviour
             position = transform.position;
             if (moved)
             {
-                if (isServer)
-                {
-                    GameServer.instance.SendPositionServer(position, ID);
-                }
-                else
-                {
-                    GameClient.instance.SendPositionToServer(position);
-                }
-            
+                GameServer.instance.SendPositionServer(position, ID);
+                Debug.Log("Enviado");
             }
             moved = false;
         }  
