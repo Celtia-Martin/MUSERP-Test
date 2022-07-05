@@ -66,7 +66,7 @@ public class MuseRPServer : IServerProtocol
     public void OnStart()
     {
         Console.instance.WriteLine("Starting server...");
-        options = new HostOptions(maxConnections, timeOut, timePing, 1, reliablePort, noReliablePort, 1000, 200, reliablePercentage, customHandler);
+        options = new HostOptions(maxConnections, timeOut, timePing, 1, reliablePort, noReliablePort, 10000, 200, reliablePercentage, customHandler);
         server = new Server(options, true);
         server.Start();
         Console.instance.WriteLine("Server started");

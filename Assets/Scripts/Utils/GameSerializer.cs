@@ -23,7 +23,7 @@ public static class GameSerializer
         buffer.AddRange(BitConverter.GetBytes(id));
         buffer.AddRange(BitConverter.GetBytes(position.x));
         buffer.AddRange(BitConverter.GetBytes(position.y));
-        buffer.AddRange(BitConverter.GetBytes(Character.timeStamp));
+        buffer.AddRange(BitConverter.GetBytes(DateTime.UtcNow.Millisecond));
         return buffer.ToArray();
     }
 

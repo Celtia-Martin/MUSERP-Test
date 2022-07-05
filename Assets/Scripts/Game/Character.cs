@@ -56,7 +56,7 @@ public class Character : MonoBehaviour
 
     public static Character myCharacter;
     public static int timeStamp;
-    public static int limitTimeStamp = 100;
+    public static int limitTimeStamp = 200;
 
    
     #region Public Methods
