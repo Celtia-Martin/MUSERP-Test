@@ -45,7 +45,7 @@ public class UIManager : MonoBehaviour
 
     public static UIManager instance;
 
-    public  static long debugTimeStamp;
+    public  static int debugTimeStamp;
     [SerializeField]
     private Text debugText;
     public static void StartGame()

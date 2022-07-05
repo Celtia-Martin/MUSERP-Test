@@ -156,12 +156,20 @@ public class GameClient : MonoBehaviour
         {
             jobs.Enqueue(() => OnPositionMessageJob(message, source));
             Debug.LogError("Timestamp : " + timeStamp + " " + Character.timeStamp);
-            UIManager.debugTimeStamp = DateTime.UtcNow.Ticks - timeStamp;
+            TimeSpan timeSpan = new TimeSpan(DateTime.UtcNow.Ticks);
+            TimeSpan difference = timeSpan.Subtract(new TimeSpan(timeStamp));
+            UIManager.debugTimeStamp = (int)(difference.TotalMilliseconds);
+            Debug.LogError("Latency " + difference.TotalMilliseconds);
+
         }
         else
         {
             Debug.LogError("Timestamp exceeded: "+ timeStamp +" "+ Character.timeStamp);
-            UIManager.debugTimeStamp = DateTime.UtcNow.Ticks - timeStamp;
+            TimeSpan timeSpan = new TimeSpan(DateTime.UtcNow.Ticks);
+            TimeSpan difference = timeSpan.Subtract(new TimeSpan(timeStamp));
+            UIManager.debugTimeStamp = (int)(difference.TotalMilliseconds);
+            Debug.LogError("Latency " + difference.TotalMilliseconds);
+
         }
 
     }
