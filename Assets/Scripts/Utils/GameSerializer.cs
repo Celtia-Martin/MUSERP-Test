@@ -23,7 +23,7 @@ public static class GameSerializer
         buffer.AddRange(BitConverter.GetBytes(id));
         buffer.AddRange(BitConverter.GetBytes(position.x));
         buffer.AddRange(BitConverter.GetBytes(position.y));
-        buffer.AddRange(BitConverter.GetBytes(DateTime.UtcNow.Ticks));
+        buffer.AddRange(BitConverter.GetBytes(DateTime.UtcNow.Millisecond));
         return buffer.ToArray();
     }
 
@@ -92,7 +92,7 @@ public static class GameSerializer
 
         return position;
     }
-    public static (Vector2, long) getPositionTimeStampFromBytes(byte[] data, out int ID)
+    public static (Vector2, int) getPositionTimeStampFromBytes(byte[] data, out int ID)
     {
         if (data.Length < 16)
         {
@@ -105,7 +105,7 @@ public static class GameSerializer
         Vector2 position = new Vector2();
         position.x = BitConverter.ToSingle(data, 4);
         position.y = BitConverter.ToSingle(data, 8);
-        long timeStamp = BitConverter.ToInt64(data, 12);
+        int timeStamp = BitConverter.ToInt32(data, 12);
         return (position, timeStamp);
     }
     public static int getPointsFromBytes(byte[] data, out int ID)

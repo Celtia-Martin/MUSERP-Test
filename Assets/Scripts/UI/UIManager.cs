@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -45,7 +44,7 @@ public class UIManager : MonoBehaviour
 
     public static UIManager instance;
 
-    public  static long debugTimeStamp;
+    public  static int debugTimeStamp;
     [SerializeField]
     private Text debugText;
     public static void StartGame()
@@ -87,7 +86,7 @@ public class UIManager : MonoBehaviour
     private void Update()
     {
         GameTimer.instance?.OnUpdate();
-        debugText.text = "" + debugTimeStamp;
+        debugText.text = ""+debugTimeStamp;
     }
     private void OnDestroy()
     {

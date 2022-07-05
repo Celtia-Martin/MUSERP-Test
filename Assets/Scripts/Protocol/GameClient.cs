@@ -151,17 +151,17 @@ public class GameClient : MonoBehaviour
     }
     public void OnPositionMessage(MessageObject message, Connection source)
     {
-        (Vector2 position, long timeStamp) = GameSerializer.getPositionTimeStampFromBytes(message.getData(), out int id);
+        (Vector2 position, int timeStamp) = GameSerializer.getPositionTimeStampFromBytes(message.getData(), out int id);
         if ( DateTime.UtcNow.Millisecond- timeStamp <= Character.limitTimeStamp)
         {
             jobs.Enqueue(() => OnPositionMessageJob(message, source));
             Debug.LogError("Timestamp : " + timeStamp + " " + Character.timeStamp);
-            UIManager.debugTimeStamp = DateTime.UtcNow.Ticks - timeStamp;
+            UIManager.debugTimeStamp = Character.timeStamp - timeStamp;
         }
         else
         {
             Debug.LogError("Timestamp exceeded: "+ timeStamp +" "+ Character.timeStamp);
-            UIManager.debugTimeStamp = DateTime.UtcNow.Ticks - timeStamp;
+            UIManager.debugTimeStamp = Character.timeStamp - timeStamp;
         }
 
     }
