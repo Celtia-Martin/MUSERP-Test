@@ -120,17 +120,17 @@ public class GameServer : MonoBehaviour
     #region Event Handlers
     private void OnPositionReceive(MessageObject message, Connection source)
     {
-        (Vector2 position, int timeStamp) = GameSerializer.getPositionTimeStampFromBytes(message.getData(), out int id);
+        (Vector2 position, long timeStamp) = GameSerializer.getPositionTimeStampFromBytes(message.getData(), out int id);
         if ( DateTime.UtcNow.Millisecond- timeStamp <= Character.limitTimeStamp)
         {
             jobs.Enqueue(() => OnPositionChangeJob(message, source));
-            UIManager.debugTimeStamp = Character.timeStamp - timeStamp;
+            UIManager.debugTimeStamp = DateTime.UtcNow.Ticks - timeStamp;
             
         }
         else
         {
             Debug.LogError("Timestamp exceeded");
-            UIManager.debugTimeStamp = Character.timeStamp - timeStamp;
+            UIManager.debugTimeStamp = DateTime.UtcNow.Ticks - timeStamp;
         }
 
     }
