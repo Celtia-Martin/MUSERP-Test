@@ -152,7 +152,7 @@ public class GameClient : MonoBehaviour
     public void OnPositionMessage(MessageObject message, Connection source)
     {
         (Vector2 position, int timeStamp) = GameSerializer.getPositionTimeStampFromBytes(message.getData(), out int id);
-        if ( DateTime.UtcNow.Millisecond- timeStamp <= Character.limitTimeStamp)
+        if ( Character.timeStamp- timeStamp <= Character.limitTimeStamp)
         {
             jobs.Enqueue(() => OnPositionMessageJob(message, source));
             Debug.LogError("Timestamp : " + timeStamp + " " + Character.timeStamp);

@@ -98,11 +98,11 @@ public class GameServer : MonoBehaviour
     public void StartServer()
     {
         isServer = true;
-       serverProtocol = new MuseRPServer(reliablePort, noReliablePort, maxConnections, timeOut, timePing, reliablePercentage);
+        serverProtocol = new MuseRPServer(reliablePort, noReliablePort, maxConnections, timeOut, timePing, reliablePercentage);
         //serverProtocol = new TCPServer(reliablePort,maxConnections);
         // serverProtocol = new RufflesServer(reliablePort);
         //serverProtocol = new GServerServer(reliablePort,this);
-       // serverProtocol = new UDPServer(reliablePort, maxConnections);
+        //serverProtocol = new UDPServer(reliablePort, maxConnections);
         serverProtocol.OnStart();
         ServerIniciado();
     }
@@ -121,11 +121,10 @@ public class GameServer : MonoBehaviour
     private void OnPositionReceive(MessageObject message, Connection source)
     {
         (Vector2 position, int timeStamp) = GameSerializer.getPositionTimeStampFromBytes(message.getData(), out int id);
-        if ( DateTime.UtcNow.Millisecond- timeStamp <= Character.limitTimeStamp)
+        if (timeStamp - Character.timeStamp <= Character.limitTimeStamp)
         {
             jobs.Enqueue(() => OnPositionChangeJob(message, source));
             UIManager.debugTimeStamp = Character.timeStamp - timeStamp;
-            
         }
         else
         {
