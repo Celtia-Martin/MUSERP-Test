@@ -26,9 +26,11 @@ public class Character : MonoBehaviour
     //Delegates and timer 
 
     private Timer sendingPosition;
-  
+
     private CustomUpdateDelegate customUpdate;
     private CustomUpdateDelegate customFixedUpdate;
+
+
 
     //References
 
@@ -50,11 +52,12 @@ public class Character : MonoBehaviour
     private Vector2 position;
     private bool moved = false;
     private bool canShot = true;
+    private Queue<System.Action> jobs;
 
     //Reference
 
     public static Character myCharacter;
-   
+
     #region Public Methods
 
     #region Mods
@@ -69,6 +72,8 @@ public class Character : MonoBehaviour
         cursor.color = color;
         arrowSprite.color = color;
         pointText.color = color;
+        sendingPosition = new Timer(35);
+        sendingPosition.AutoReset = true;
         if (isMine)
         {
             if (!isServer)
@@ -77,7 +82,8 @@ public class Character : MonoBehaviour
                 //sendingPosition.Elapsed += ((e, t) => SendingPosition());
                 //sendingPosition.AutoReset = true;
                 //sendingPosition.Start();
-                StartCoroutine(SendingPositionClientCoroutine());
+                //StartCoroutine(SendingPositionClientCoroutine());
+                sendingPosition.Elapsed += (a, b) => SendingPositionClient();
             }
             else
             {
@@ -85,14 +91,15 @@ public class Character : MonoBehaviour
                 //sendingPosition.Elapsed += ((e, t) => SendingPositionServer());
                 //sendingPosition.AutoReset = true;
                 //sendingPosition.Start();
-                StartCoroutine(SendingPositionServerCoroutine());
+                //StartCoroutine(SendingPositionServerCoroutine());
+                sendingPosition.Elapsed += (a, b) => SendingPositionServer();
 
             }
 
             myCharacter = this;
 
         }
-       
+        sendingPosition.Start();
         return this.color;
     }
 
@@ -106,14 +113,14 @@ public class Character : MonoBehaviour
     {
         Vector2 direction = position - (Vector2)transform.position;
         Shot shotInstance = PoolManager.singleton.getFromPool("Shot").GetComponent<Shot>();
-        shotInstance.InitBullet(position, direction, color,isServer,this);
+        shotInstance.InitBullet(position, direction, color, isServer, this);
     }
     public void StartGame()
     {
         customUpdate += OnCustomUpdate;
         customFixedUpdate += OnCustomFixedUpdate;
         arrowSprite.gameObject.SetActive(true);
-      
+
     }
     #endregion
     #region Getters and Setters
@@ -130,7 +137,7 @@ public class Character : MonoBehaviour
     }
     public void SetPoints(int points)
     {
-      
+
         this.points = points;
         pointText.text = this.points.ToString();
     }
@@ -175,10 +182,15 @@ public class Character : MonoBehaviour
         position = transform.position;
         myAnimator = GetComponent<Animator>();
         hitParticles = GetComponentInChildren<ParticleSystem>();
+        jobs = new Queue<System.Action>();
     }
     private void Update()
     {
         customUpdate?.Invoke();
+        while (jobs.Count > 0)
+        {
+            jobs.Dequeue().Invoke();
+        }
     }
     private void FixedUpdate()
     {
@@ -191,7 +203,7 @@ public class Character : MonoBehaviour
         //Server autoritativo: mandar input y el ya hace el resto
         //Mover el cursor
         transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
-      
+
         GetInputShot();
 
     }
@@ -236,7 +248,7 @@ public class Character : MonoBehaviour
     //    Debug.Log("p" + position);
     //    Debug.Log("tr" + transform.position);
     //    moved = Mathf.Abs(Vector2.Distance(position, transform.position)) > Mathf.Epsilon;
-      
+
     //    Debug.Log(moved?"si":"no");
     //    position = transform.position;
     //    if (moved)
@@ -248,28 +260,28 @@ public class Character : MonoBehaviour
     //}
 
 
-    private IEnumerator SendingPositionServerCoroutine()
+    private void SendingPositionServer()
     {
-        while (isActiveAndEnabled)
-        {
-            yield return new WaitForSeconds(0.02f);
-
-            moved = Mathf.Abs(Vector2.Distance(position, transform.position)) > Mathf.Epsilon;
-
-
-            position = transform.position;
-            if (moved)
+            jobs.Enqueue(() =>
             {
-                GameServer.instance.SendPositionServer(position, ID);
-                Debug.Log("Enviado");
-            }
-            moved = false;
-        }
-    }   private IEnumerator SendingPositionClientCoroutine()
+                moved = Mathf.Abs(Vector2.Distance(position, transform.position)) > Mathf.Epsilon;
+
+
+                position = transform.position;
+                if (moved)
+                {
+                    GameServer.instance.SendPositionServer(position, ID);
+                    Debug.Log("Enviado");
+                }
+                moved = false;
+
+            });
+    }
+    private void SendingPositionClient()
     {
-        while (isActiveAndEnabled)
+        jobs.Enqueue(() =>
         {
-            yield return new WaitForSeconds(0.02f);
+
             moved = Mathf.Abs(Vector2.Distance(position, transform.position)) > Mathf.Epsilon;
 
             position = transform.position;
@@ -279,7 +291,7 @@ public class Character : MonoBehaviour
                 Debug.Log("Enviado");
             }
             moved = false;
-        }
+        });
     }
     IEnumerator HitState()
     {
@@ -298,6 +310,10 @@ public class Character : MonoBehaviour
     #endregion
     #region Events
     private void OnApplicationQuit()
+    {
+        sendingPosition?.Stop();
+    }
+    private void OnDestroy()
     {
         sendingPosition?.Stop();
     }
