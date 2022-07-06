@@ -49,7 +49,7 @@ public class GServerServer : IServerProtocol
     public void SendTo(ushort type, byte[] data, Connection conn, bool reliable = true)
     {
         GServer.Connection.Connection gServerConnection = serverHost.GetConnections().Where((c) => c.EndPoint.Port.Equals(conn.port) && c.EndPoint.Address.ToString().Equals(conn.IP)).First();
-        Message message = new Message((short)type, Mode.Reliable, data);
+        Message message = new Message((short)type, reliable ? Mode.Reliable : Mode.Ordered, data);
         serverHost.Send(message, gServerConnection);
         
     }
@@ -57,7 +57,7 @@ public class GServerServer : IServerProtocol
     public void SendToAll(ushort type, byte[] data, bool reliable = true)
     {
 
-        Message message  = new Message((short)type, Mode.Reliable, data);
+        Message message  = new Message((short)type, reliable ? Mode.Reliable : Mode.Ordered, data);
         foreach (GServer.Connection.Connection conn in serverHost.GetConnections())
         {
             serverHost.Send(message, conn);

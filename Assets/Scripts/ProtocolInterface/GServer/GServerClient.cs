@@ -82,9 +82,9 @@ public class GServerClient : IClientProtocol
 
     public void SendToServer(ushort type, byte[] data, bool reliable = true)
     {
-
-        Message message = new Message((short)type, Mode.Reliable, data);
+        Message message = new Message((short)type, reliable? Mode.Reliable: Mode.Ordered, data);
         clientHost.Send(message);
+ 
     }
 
     public void TryConnect()
