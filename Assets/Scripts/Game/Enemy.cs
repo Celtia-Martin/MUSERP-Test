@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//Class that manages the Enemy gameObject
 public class Enemy : MonoBehaviour
 {
     //Properties
@@ -34,7 +35,7 @@ public class Enemy : MonoBehaviour
 
     public int RemoveEnemyServer()
     {
-        if (dead||inmune)
+        if (dead || inmune)
         {
             return 0;
         }
@@ -48,7 +49,7 @@ public class Enemy : MonoBehaviour
     }
     public void RemoveEnemyClient()
     {
-        if (dead )
+        if (dead)
         {
             return;
         }
@@ -56,7 +57,7 @@ public class Enemy : MonoBehaviour
         animator.SetBool("Dead", true);
         StartCoroutine(Dead());
     }
-   public void InitEnemy(Vector2 position, Vector2 direction, bool isServer)
+    public void InitEnemy(Vector2 position, Vector2 direction, bool isServer)
     {
         inmune = true;
         dead = false;
@@ -71,17 +72,17 @@ public class Enemy : MonoBehaviour
     public string getType() { return type; }
     private IEnumerator TimeToLive()
     {
-        yield return new WaitForSeconds( inmuneTime);
+        yield return new WaitForSeconds(inmuneTime);
         inmune = false;
         yield return new WaitForSeconds(lifeTime);
         RemoveEnemyServer();
     }
     IEnumerator Dead()
     {
-     
+
         yield return new WaitForSeconds(1);
         PoolManager.singleton.addToPool(type, gameObject);
         PoolManager.singleton.addToPool(type, gameObject);
     }
-    
+
 }

@@ -5,6 +5,7 @@ using System.Timers;
 using UnityEngine;
 using UnityEngine.UI;
 
+//Class that manages the timer of the game
 public class GameTimer
 {
 
@@ -47,7 +48,7 @@ public class GameTimer
                 timeCountDown.Stop();
             }
         });
-     
+
     }
     private string DisplayTime(float timeToDisplay)
     {

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//Class that manages the shot gameobeject
 public class Shot : MonoBehaviour
 {
     //References
@@ -34,22 +35,12 @@ public class Shot : MonoBehaviour
         }
         if (collision.tag.Equals("Enemy"))
         {
-            //Eliminar enemigo (Mandar)
-            //Puntos como enemigo
             int points = collision.gameObject.GetComponent<Enemy>().RemoveEnemyServer();
             myCharacter.AddPoints(points);
-           
-            //Mandar desaparicion
-            //Mandar puntos
-         
-
         }
         else if (collision.tag.Equals("Player"))
         {
-            //Mandar puntos
             collision.gameObject.GetComponent<Character>().AddPoints(-pointsPlayer);
-        
-            //Set puntos
         }
         EliminateShot();
     }
@@ -57,7 +48,7 @@ public class Shot : MonoBehaviour
     #endregion
     #region Methods
     #region Public
-    public void InitBullet(Vector2 position, Vector2 direction, Color color, bool isServer,Character myCharacter)
+    public void InitBullet(Vector2 position, Vector2 direction, Color color, bool isServer, Character myCharacter)
     {
         this.isServer = isServer;
         this.myCharacter = myCharacter;
@@ -77,7 +68,7 @@ public class Shot : MonoBehaviour
         PoolManager.singleton.addToPool("Shot", gameObject);
     }
     #endregion
- 
+
     #endregion
     #region Coroutines
     private IEnumerator TimeToLive()

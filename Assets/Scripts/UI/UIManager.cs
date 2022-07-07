@@ -5,39 +5,37 @@ using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+//Class that manages the UI of the game
 public class UIManager : MonoBehaviour
 {
     //Panel References
     [SerializeField] private GameObject menuParent;
     [SerializeField] private GameObject mainMenu;
-
     [SerializeField] private GameObject prevGameServer;
     [SerializeField] private GameObject prevGameClient;
-
     [SerializeField] private GameObject resultsScreen;
-
     [SerializeField] private GameObject clientMenu;
     [SerializeField] private GameObject serverMenu;
+
     //Buttons References
     [SerializeField] private Button createServer;
     [SerializeField] private Button createClient;
     [SerializeField] private Button startServer;
     [SerializeField] private Button startClient;
     [SerializeField] private Button retryConnection;
-
     [SerializeField] private Button startGame;
     [SerializeField] private Button returnGame;
 
     //Inputs References
     [SerializeField] private InputField serverPortInput;
     [SerializeField] private InputField serverIPInput;
+
     //Text References
     [SerializeField] private Text portText;
     [SerializeField] private Text IPText;
-
     [SerializeField] private Text resultsText;
-
     [SerializeField] private Text textClock;
+
     //Network Managers References
     [SerializeField] private GameObject serverObject;
     [SerializeField] private GameObject clientObject;
@@ -126,7 +124,6 @@ public class UIManager : MonoBehaviour
         Debug.Log("Start Game");
         prevGameClient.SetActive(false);
         prevGameServer.SetActive(false);
-        GameClient.instance?.GameIsStarted();
         GameServer.instance?.GameIsStarted();
 
     }

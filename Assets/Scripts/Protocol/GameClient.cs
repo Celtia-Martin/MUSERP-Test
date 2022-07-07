@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
 
+//Class that manages the use of the communication protocol in the game if the user is a client
 public class GameClient : MonoBehaviour
 {
     //Singleton
@@ -20,7 +21,7 @@ public class GameClient : MonoBehaviour
 
     private IClientProtocol clientProtocol;
     //Properties
-    private int myID=-2;
+    private int myID = -2;
     [SerializeField]
     protected int timeOut;
     [SerializeField]
@@ -28,7 +29,7 @@ public class GameClient : MonoBehaviour
     [SerializeField]
     protected int timeOutConnection;
     [SerializeField]
-    protected int serverReliablePort; // Solo se necesita el fiable
+    protected int serverReliablePort;
     [SerializeField]
     protected string serverIP;
 
@@ -61,21 +62,33 @@ public class GameClient : MonoBehaviour
     #endregion
     public void StartClient(int serverReliablePort, string IP)
     {
-       
+
         this.serverIP = IP;
         this.serverReliablePort = serverReliablePort;
-        //MUSERP
-        HostOptions options = new HostOptions(1, timeOut, 1000, 1, 59555, 59554, 1, 200, 100, null);
-
+        //MUSE-RP: 
         ConnectionInfo serverInfo = new ConnectionInfo(IP, serverReliablePort, 0);
-        clientProtocol = new MuseRPClient(serverInfo, options, timeOutConnection, connectionTries);
+        HostOptions clientOptions = new HostOptions()
+        {
+            maxConnections = 1,
+            timeOut = timeOut,
+            timePing = 1000,
+            windowSize = 1000,
+            timerTime = 200,
+            waitTime = 1
+
+        };
+        clientProtocol = new MuseRPClient(serverInfo, clientOptions, timeOutConnection, connectionTries);
+
+        //Telepathy:
         //clientProtocol = new TCPClient(UnityEngine.Random.Range(49152, 65535), new IPEndPoint(IPAddress.Parse(IP), serverReliablePort));
-       //clientProtocol = new RufflesClient(new IPEndPoint(IPAddress.Parse(IP), serverReliablePort));
+        //Ruffles:
+        //clientProtocol = new RufflesClient(new IPEndPoint(IPAddress.Parse(IP), serverReliablePort));
+        //GServer:
         //clientProtocol = new GServerClient(serverReliablePort, IP);
-       // clientProtocol = new UDPClient(new IPEndPoint(IPAddress.Parse(IP), serverReliablePort), UnityEngine.Random.Range(49152, 65535));
+        //UDPClient:
+        // clientProtocol = new UDPClient(new IPEndPoint(IPAddress.Parse(IP), serverReliablePort), UnityEngine.Random.Range(49152, 65535));
 
         clientProtocol.OnStart(OnConnected);
-
         clientProtocol.AddHandler(4, OnNewCharacterMessage);
         clientProtocol.AddHandler(5, OnPositionMessage);
         clientProtocol.AddHandler(66, MyCharacterMessage);
@@ -91,13 +104,7 @@ public class GameClient : MonoBehaviour
     }
     public void AddConnectionFailureHandler(Action handler)
     {
-        clientProtocol.AddOnConnectionFailedHandler(()=>jobs.Enqueue(handler));
-    }
-
-
-    public void GameIsStarted()
-    {
-        //TODO: Start Methods in both client and server
+        clientProtocol.AddOnConnectionFailedHandler(() => jobs.Enqueue(handler));
     }
     public void TryConnect()
     {
@@ -120,8 +127,6 @@ public class GameClient : MonoBehaviour
 
     protected void OnConnected()
     {
-        //Mal, deberia de hacer remove
-
         clientProtocol.AddOnDisconnectedHandler(() => jobs.Enqueue(OnServerDisconnectedJob));
         Debug.Log("Conectado");
     }
@@ -159,8 +164,6 @@ public class GameClient : MonoBehaviour
     public void MyCharacterMessage(MessageObject message, Connection source)
     {
         jobs.Enqueue(() => MyCharacterJob(message, source));
-
-
     }
     public void OnNewCharacterMessage(MessageObject message, Connection source)
     {
@@ -173,12 +176,10 @@ public class GameClient : MonoBehaviour
 
     public void OnStartGame(MessageObject message, Connection source)
     {
-        //TODO
         jobs.Enqueue(() => OnStartGameJob(message, source));
     }
     public void OnEndGame(MessageObject message, Connection source)
     {
-        //TODO
         jobs.Enqueue(() => OnEndGameJob());
     }
 
@@ -187,23 +188,22 @@ public class GameClient : MonoBehaviour
     private void OnServerDisconnectedJob()
     {
         Console.instance.WriteLine("Disconnected");
-        //Remove all handlers????
         clientProtocol.RemoveHandler(4);
         clientProtocol.RemoveHandler(66);
         clientProtocol.RemoveHandler(5);
         clientProtocol.RemoveHandler(6);
-        clientProtocol.RemoveHandler(7);   
+        clientProtocol.RemoveHandler(7);
         clientProtocol.RemoveHandler(8);
         clientProtocol.RemoveHandler(9);
         clientProtocol.RemoveHandler(10);
-       
+
         clientProtocol.RemoveOnDisconnectedHandler(() => jobs.Enqueue(OnServerDisconnectedJob));
     }
     private void NewCharacterJob(MessageObject message, Connection source)
     {
         Color color = GameSerializer.getCharacterFromBytes(message.getData(), out int id);
-        Console.instance.WriteLine("New client " + id);
         if (id == myID) return;
+        Console.instance.WriteLine("New client " + id);
         Character newChara = PoolManager.singleton.getFromPool("Character").GetComponent<Character>();
         newChara.CharacterCreated(id, false, false);
         newChara.SetColor(color);
@@ -211,9 +211,9 @@ public class GameClient : MonoBehaviour
     }
     private void MyCharacterJob(MessageObject message, Connection source)
     {
-       
+
         Color color = GameSerializer.getCharacterFromBytes(message.getData(), out int id);
-     
+
         Console.instance.WriteLine("My ID: " + id);
         mine = PoolManager.singleton.getFromPool("Character").GetComponent<Character>();
         mine.CharacterCreated(id, true, false);
@@ -256,11 +256,10 @@ public class GameClient : MonoBehaviour
 
         }
     }
-
     private void OnPointsJob(MessageObject message, Connection source)
     {
         int points = GameSerializer.getPointsFromBytes(message.getData(), out int ID);
-        if(players.TryGetValue(ID,out Character value))
+        if (players.TryGetValue(ID, out Character value))
         {
             value.AddPoints(points);
         }
@@ -284,10 +283,10 @@ public class GameClient : MonoBehaviour
     {
         string results = "";
         int i = 0;
-        foreach(Character chara in players.Values)
+        foreach (Character chara in players.Values)
         {
             string color = "<color=#" + ColorUtility.ToHtmlStringRGB(chara.color) + ">";
-            results += color+ "Player " + chara.getID() + " :" + chara.getPoints() + "</color>\n";
+            results += color + "Player " + chara.getID() + " :" + chara.getPoints() + "</color>\n";
             i++;
         }
         UIManager.OnEndGame(results);

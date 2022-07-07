@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+//Debug class that displays messages in the console of the game
 public class Console : MonoBehaviour
 {
     //Singleton
@@ -38,9 +39,10 @@ public class Console : MonoBehaviour
             log += "\n" + line;
             uiLog.text = log;
 
-        }catch (Exception e)
+        }
+        catch (Exception e)
         {
-            Debug.LogWarning("Message can't be write because:  The message was: "+line);
+            Debug.LogWarning("Message can't be write because:" + e + " The message was:  " + line);
         }
     }
     #endregion

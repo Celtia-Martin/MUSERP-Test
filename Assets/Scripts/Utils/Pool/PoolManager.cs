@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//Class that manages a gameobject pool
 public class PoolManager : MonoBehaviour
 {
     public static PoolManager singleton;
@@ -39,7 +40,7 @@ public class PoolManager : MonoBehaviour
     }
     public GameObject getFromPool(string type)
     {
-        if(pools.TryGetValue(type,out Queue<GameObject> queue))
+        if (pools.TryGetValue(type, out Queue<GameObject> queue))
         {
             if (queue.Count > 0)
             {
@@ -50,7 +51,7 @@ public class PoolManager : MonoBehaviour
             else
             {
 
-                if(prefabs.TryGetValue(type,out GameObject value))
+                if (prefabs.TryGetValue(type, out GameObject value))
                 {
                     GameObject newObject = Instantiate(value);
                     return newObject;
@@ -60,23 +61,23 @@ public class PoolManager : MonoBehaviour
                     return null;
                 }
             }
-           
+
         }
         else
         {
             return null;
         }
     }
-    public void addToPool(string type,GameObject gameObject)
+    public void addToPool(string type, GameObject gameObject)
     {
         if (pools.TryGetValue(type, out Queue<GameObject> queue))
         {
             gameObject.SetActive(false);
             queue.Enqueue(gameObject);
-           
+
         }
-      
+
     }
 
-   
+
 }

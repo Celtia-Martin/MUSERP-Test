@@ -4,6 +4,8 @@ using System.Timers;
 using UnityEngine;
 using UnityEngine.UI;
 
+//Class that manages the Character gameObject
+
 public class Character : MonoBehaviour
 {
     //Properties(Editor)
@@ -37,13 +39,13 @@ public class Character : MonoBehaviour
     [SerializeField]
     private SpriteRenderer cursor;
     [SerializeField]
-    private SpriteRenderer arrowSprite; //Para ponerle el color
+    private SpriteRenderer arrowSprite;
     [SerializeField]
-    private Transform arrowSpawn; //para spawnear los disparos
+    private Transform arrowSpawn;
     [SerializeField]
-    private GameObject arrowPivot; //para girarlo
+    private GameObject arrowPivot;
     [SerializeField]
-    private Text pointText; // Para tener conteo de sus puntos
+    private Text pointText;
     private Animator myAnimator;
     private ParticleSystem hitParticles;
 
@@ -59,11 +61,9 @@ public class Character : MonoBehaviour
     public static Character myCharacter;
 
     #region Public Methods
-
-    #region Mods
+    #region Events
     public Color CharacterCreated(int ID, bool isMine, bool isServer)
     {
-
         this.isServer = isServer;
         this.ID = ID;
         this.color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1);
@@ -78,20 +78,10 @@ public class Character : MonoBehaviour
         {
             if (!isServer)
             {
-                //sendingPosition = new Timer(20);
-                //sendingPosition.Elapsed += ((e, t) => SendingPosition());
-                //sendingPosition.AutoReset = true;
-                //sendingPosition.Start();
-                //StartCoroutine(SendingPositionClientCoroutine());
                 sendingPosition.Elapsed += (a, b) => SendingPositionClient();
             }
             else
             {
-                //sendingPosition = new Timer(20);
-                //sendingPosition.Elapsed += ((e, t) => SendingPositionServer());
-                //sendingPosition.AutoReset = true;
-                //sendingPosition.Start();
-                //StartCoroutine(SendingPositionServerCoroutine());
                 sendingPosition.Elapsed += (a, b) => SendingPositionServer();
 
             }
@@ -102,13 +92,6 @@ public class Character : MonoBehaviour
         sendingPosition.Start();
         return this.color;
     }
-
-    //public void CharacterDispose()
-    //{
-    //    sendingPosition.Stop();
-    //    customUpdate = null;
-    //    gameObject.SetActive(false);
-    //}
     public void Shot(Vector2 position)
     {
         Vector2 direction = position - (Vector2)transform.position;
@@ -200,8 +183,6 @@ public class Character : MonoBehaviour
     #region CustomUpdates
     private void OnCustomUpdate()
     {
-        //Server autoritativo: mandar input y el ya hace el resto
-        //Mover el cursor
         transform.position = (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
         GetInputShot();
@@ -235,47 +216,22 @@ public class Character : MonoBehaviour
             StartCoroutine(ShotCooldown());
         }
     }
-    //private void SendingPosition()
-    //{
-    //    moved = Mathf.Abs(Vector2.Distance(position, transform.position)) > Mathf.Epsilon;
-    //    position = transform.position;
-    //    if (moved) GameClient.instance.SendPositionToServer(position);
-
-    //    moved = false;
-    //}
-    //private void SendingPositionServer()
-    //{
-    //    Debug.Log("p" + position);
-    //    Debug.Log("tr" + transform.position);
-    //    moved = Mathf.Abs(Vector2.Distance(position, transform.position)) > Mathf.Epsilon;
-
-    //    Debug.Log(moved?"si":"no");
-    //    position = transform.position;
-    //    if (moved)
-    //    {
-    //        GameServer.instance.SendPositionServer(position, ID);
-    //        Debug.Log("Enviado");
-    //    }
-    //    moved = false;
-    //}
-
-
     private void SendingPositionServer()
     {
-            jobs.Enqueue(() =>
+        jobs.Enqueue(() =>
+        {
+            moved = Mathf.Abs(Vector2.Distance(position, transform.position)) > Mathf.Epsilon;
+
+
+            position = transform.position;
+            if (moved)
             {
-                moved = Mathf.Abs(Vector2.Distance(position, transform.position)) > Mathf.Epsilon;
+                GameServer.instance.SendPositionServer(position, ID);
+                Debug.Log("Enviado");
+            }
+            moved = false;
 
-
-                position = transform.position;
-                if (moved)
-                {
-                    GameServer.instance.SendPositionServer(position, ID);
-                    Debug.Log("Enviado");
-                }
-                moved = false;
-
-            });
+        });
     }
     private void SendingPositionClient()
     {

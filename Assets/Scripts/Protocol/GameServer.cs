@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Timers;
 using UnityEngine;
 
+//Class that manages the use of the communication protocol in the game if the user is a server
 public class GameServer : MonoBehaviour
 {
 
@@ -37,6 +38,7 @@ public class GameServer : MonoBehaviour
 
     private Queue<Action> jobs;
 
+    //State
     private int myID = -1;
 
     private int contClientID = 0;
@@ -48,7 +50,7 @@ public class GameServer : MonoBehaviour
     #region Unity Events
     public static void OnGameEnd()
     {
-        if (instance==null || !instance.isServer)
+        if (instance == null || !instance.isServer)
         {
             return;
         }
@@ -98,18 +100,22 @@ public class GameServer : MonoBehaviour
     public void StartServer()
     {
         isServer = true;
-        //serverProtocol = new MuseRPServer(reliablePort, noReliablePort, maxConnections, timeOut, timePing, reliablePercentage);
-        //serverProtocol = new TCPServer(reliablePort,maxConnections);
-       // serverProtocol = new RufflesServer(reliablePort);
-        serverProtocol = new GServerServer(reliablePort,this);
-       // serverProtocol = new UDPServer(reliablePort, maxConnections);
+        //MUSE-RP:
+        serverProtocol = new MuseRPServer(reliablePort, noReliablePort, maxConnections, timeOut, timePing, reliablePercentage);
+        //Telepathy:
+        //serverProtocol = new TCPServer(reliablePort, maxConnections);
+        //Ruffles:
+        // serverProtocol = new RufflesServer(reliablePort);
+        //GServer
+        //serverProtocol = new GServerServer(reliablePort,this);
+        //UDP:
+        //serverProtocol = new UDPServer(reliablePort, maxConnections);
         serverProtocol.OnStart();
         ServerIniciado();
     }
 
     public void GameIsStarted()
     {
-        //TODO: Start Methods in both client and server
         Character.myCharacter.StartGame();
         EnemySpawner.instance.InitEnemySpawner(true);
         serverProtocol.SendToAll(11, null, true);
@@ -126,7 +132,7 @@ public class GameServer : MonoBehaviour
     {
         jobs.Enqueue(() => ShotReceivedJob(message, source));
     }
-    private void OnClientConnected(ConnectionInfo clientInfo)//No es concurrente, no necesita 
+    private void OnClientConnected(ConnectionInfo clientInfo)
     {
         jobs.Enqueue(() => NewClientJob(clientInfo));
 
@@ -237,19 +243,17 @@ public class GameServer : MonoBehaviour
         {
             charaInfo = GameSerializer.newCharacterToBytes(chara.color, chara.getID());
 
-           serverProtocol.SendTo(4, charaInfo, reliableConnection, true);
-           serverProtocol.SendTo(8, GameSerializer.pointsToBytes(chara.getID(), chara.getPoints()), reliableConnection, true);
+            serverProtocol.SendTo(4, charaInfo, reliableConnection, true);
+            serverProtocol.SendTo(8, GameSerializer.pointsToBytes(chara.getID(), chara.getPoints()), reliableConnection, true);
 
         }
         EnemySpawner.instance.SendAllCurrentEnemies(reliableConnection);
         players.Add(currentID, newCharacter);
         characters.Add(newCharacter);
-        //serverProtocol.SendToAll(4, data, true);
-        Debug.Log("Todo bien " + characters.Count);
+        serverProtocol.SendToAll(4, data, true);
     }
     private void OnPositionChangeJob(MessageObject message, Connection source)
     {
-        Debug.Log("ha recibido posicion");
         Vector2 position = GameSerializer.getPositionFromBytes(message.getData(), out int id);
         if (players.TryGetValue(id, out Character chara))
         {
@@ -259,5 +263,5 @@ public class GameServer : MonoBehaviour
     }
 
     #endregion
- 
+
 }

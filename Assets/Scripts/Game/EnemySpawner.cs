@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Timers;
 using UnityEngine;
 
+// Class that manages the spawn of the enemies
 public class EnemySpawner : MonoBehaviour
 {
     //Singleton

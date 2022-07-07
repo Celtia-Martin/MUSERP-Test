@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//Auxiliar class that helps in the serializaton and deserialization of the data
 public static class GameSerializer
 {
     #region To Bytes
@@ -53,7 +54,6 @@ public static class GameSerializer
     {
         if (data.Length < 16)
         {
-            // throw new IncorrectMessageFormatException();
             ID = -1;
             return Color.white;
         }
@@ -71,7 +71,6 @@ public static class GameSerializer
         {
             ID = -1;
             return Vector2.zero;
-            //  throw new IncorrectMessageFormatException();
         }
 
         ID = BitConverter.ToInt32(data, 0);
@@ -88,7 +87,6 @@ public static class GameSerializer
         {
             ID = -1;
             return -1;
-            //throw new IncorrectMessageFormatException();
         }
         int points;
         ID = BitConverter.ToInt32(data, 0);
@@ -112,17 +110,11 @@ public static class GameSerializer
             type = 52;
             return -1;
         }
-        //throw new IncorrectMessageFormatException();
         int index = BitConverter.ToInt32(data, 0);
         type = BitConverter.ToUInt16(data, 4);
         return index;
 
     }
-
     #endregion
-
-
-
-
 
 }

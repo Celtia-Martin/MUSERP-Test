@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+//Class that manages the FX and the music of the game
 public class SoundManager : MonoBehaviour
 {
     public static SoundManager instance;
@@ -18,7 +19,6 @@ public class SoundManager : MonoBehaviour
         CharacterHit,
         Shot
     }
-
     private void Awake()
     {
         if (instance == null)
