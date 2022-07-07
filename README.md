@@ -1,4 +1,4 @@
-#EyeShot: MUSE-RP test
+# EyeShot: MUSE-RP test
 
 
 Simple online multiplayer game implemented in unity to test the RUDP protocol MUSE-RP (Repository link:https://github.com/Celtia-Martin/MUSE-RP-RUDP-protocol) along with other protocols:
